@@ -2,4 +2,6 @@
 
  **Water Consumption Invoices**
  
-This program intends to create a record of water consumption invoices, in the prolog language.
+This is a program developed in Prolog language.
+
+Intends to register invoices on water consumption.
