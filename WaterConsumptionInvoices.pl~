@@ -1,16 +1,31 @@
 :- dynamic consumption/8.
 :- dynamic invoice/4.
 
-/*consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(2), month(4), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(5), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(6), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(1), cubicmeters6_15(0), month(7), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(4), cubicmeters6_15(0), month(8), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(2), cubicmeters6_15(0), month(9), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(10), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
 
-invoice(idclient(1000), water_bill(3), month(1), year(2019)).*/
-
-show_consumption(C, Y) :-
-    consumption(_, name(C), _, npersons(NP), cubicmeters0_5(W1), cubicmeters6_15(W2), _, year(Y)), I is (1.5*NP+0.5*W1+1*W2), write(I), nl, fail.
-show_invoice(C, Y) :-
-    consumption(idclient(I), name(C), _, _, _, _, _, _),
-    invoice(idclient(I), water_bill(W), _, year(Y)), write(W), nl, fail.
-
+invoice(idclient(1000), water_bill(3), month(1), year(2019)).
+invoice(idclient(1000), water_bill(13), month(2), year(2019)).
+invoice(idclient(1000), water_bill(22), month(3), year(2019)).
+invoice(idclient(1000), water_bill(31), month(4), year(2019)).
+invoice(idclient(1000), water_bill(17), month(5), year(2019)).
+invoice(idclient(1000), water_bill(17), month(6), year(2019)).
+invoice(idclient(1000), water_bill(7), month(7), year(2019)).
+invoice(idclient(1000), water_bill(6), month(8), year(2019)).
+invoice(idclient(1000), water_bill(10), month(9), year(2019)).
+invoice(idclient(1000), water_bill(7), month(10), year(2019)).
+invoice(idclient(1000), water_bill(16), month(11), year(2019)).
+invoice(idclient(1000), water_bill(30), month(12), year(2019)).
 
 /*Auxiliary*/
 create_invoice() :-
@@ -25,7 +40,7 @@ create_invoice() :-
     latex_file(A, B, C, D, SFT, E, C0_5T, F, C6_15T, WaterBill, G, H).
 
 latex_file(ClientId, Name, Address, SanitationfeeQuantity, SanitationfeeTotal, CubicmetersZeroQuantity, CubicmetersZeroTotal, CubicmetersSixQuantity, CubicmetersSixTotal, WaterBill, Month, Year) :-
-    tell('WaterInvoice.tex'),
+    tell('WaterInvoice.txt'),
     write('\\newcommand{\\clientId}{'), write(ClientId), write('}\n'),
     write('\\newcommand{\\toname}{'), write(Name), write('}\n'),
     write('\\newcommand{\\toaddress}{'), write(Address), write('}\n'),
@@ -38,10 +53,89 @@ latex_file(ClientId, Name, Address, SanitationfeeQuantity, SanitationfeeTotal, C
     write('\\newcommand{\\waterBill}{'), write(WaterBill), write('}\n'),
     write('\\newcommand{\\clientmonth}{'), write(Month), write('}\n'),
     write('\\newcommand{\\clientyear}{'), write(Year), write('}\n'),
+    static_text_latex(),
     told.
 
-/*static_text_latex() :-
-    .*/
+static_text_latex() :-
+    write('\n\\documentclass{scrlttr2}\n\n'),
+    write('\\usepackage[utf8]{inputenc}\n'),
+    write('\\usepackage[T1]{fontenc}\n'),
+    write('\\usepackage{textcomp}\n'),
+    write('\\usepackage{lmodern}\n'),
+    write('\\usepackage{color}\n'),
+    write('\\usepackage{spreadtab}\n'),
+    write('\\usepackage{tabularx}\n'),
+    write('\\usepackage{booktabs}\n'),
+    write('\\usepackage{datetime}\n\n'),
+
+    write('\\newcommand{\\taxID}{Tax Number: 617498954}\n'),
+    write('\\renewcommand{\\familydefault}{\\sfdefault}\n\n'),
+
+    write('\\setkomavar{subject}{Water Bill of \\monthname[\\clientmonth] \\clientyear }\n'),
+    write('\\setkomavar{invoice}{\\clientyear\\clientmonth-01}\n'),
+    write('\\setkomavar{date}[Date of invoice]{\\today}\n'),
+    write('\\setkomavar{fromaddress}{3792 Pleasant Hill Road\\\\Musterhausen}\n'),
+    write('\\setkomavar{backaddressseparator}{·}\n'),
+    write('\\setkomavar{fromemail}[\\Letter~]{\\color[gray]{.3}info@watersmile.com}\n'),
+    write('\\setkomavar{frommobilephone}{\\color[gray]{.3}+1\\,562\\,232\\,9486}\n'),
+    write('\\setkomavar{frombank}{IBAN: 125\\,4485\\,1026\\,7843\\,4513\\,11\\\\BIC: AQDQ\\,XX\\,AQ\\,PTO\\\\meineBank}\n'),
+    write('\\setkomavar{firstfoot}{\n'),
+      write('  \\rule[3pt]{\\textwidth}{.4pt} \\\\ \n'),
+      write('  \\parbox[t]{\\textwidth}{\\footnotesize\n'),
+        write('    \\begin{tabular}[t]{@{}l}\n'),
+          write('      \\usekomavar{frombank}\n'),
+        write('    \\end{tabular}\n'),
+        write('    \\hfill\n'),
+        write('    \\begin{tabular}[t]{l@{}}\n'),
+          write('      \\taxID\n'),
+        write('    \\end{tabular}\n'),
+      write('  }\n'),
+    write('}\n\n'),
+
+    write('\\KOMAoptions{\n'),
+      write('  firsthead=true,\n'),
+      write('  fromalign=right,\n'),
+      write('  fromrule=false,\n'),
+      write('  fromemail=true,\n'),
+      write('  frommobilephone=true,\n'),
+      write('  symbolicnames=true,\n'),
+      write('  numericaldate=true,\n'),
+      write('  firstfoot=true,\n'),
+      write('  parskip=full\n'),
+    write('}\n\n'),
+
+    write('\\makeatletter\n'),
+    write('\\@addtoplength{sigbeforevskip}{-1.5em}\n'),
+    write('\\@addtoplength{firstfootvpos}{-2em}\n'),
+    write('\\makeatother\n\n'),
+
+    write('\\begin{document}\n'),
+    write('\\begin{letter}{Nº: \\clientId\\\\Name: \\toname\\\\Addres: \\toaddress}\n'),
+    write('\\opening{Water Consumption}\n\n'),
+
+    write('\\STsetdecimalsep{{,}}\n'),
+    write('\\STautoround*{2}\n'),
+    write('\\begin{spreadtab}{{tabularx}{\\textwidth}{Xrrr}}\n'),
+    write('\\toprule\n'),
+    write('@\\multicolumn{1}{l}{Description} &\n'),
+    write('@\\multicolumn{1}{l}{Price Unit} &\n'),
+    write('@\\multicolumn{1}{l}{Quantity} &\n'),
+    write('@\\multicolumn{1}{l}{Total}       \\\\\n'),
+    write('\\midrule\n'),
+    write('@Sanitation fee                                     &\n'),
+    write(':={1.50}\\,€ & \\sanitationfeeQuantity & :=\\sanitationfeeTotal\\,€ \\\\ \n'),
+    write('@CubicMeters (0 to 5):&\n'),
+    write(':={0.50}\\,€ & \\cubicmetersZeroQuantity & :=\\cubicmetersZeroTotal\\,€ \\\\ \n'),
+    write('@CubicMeters (6 to 15):&\n'),
+    write(':={1.00}\\,€ & \\cubicmetersSixQuantity & :=\\cubicmetersSixTotal\\,€ \\\\ \n'),
+    write('\\midrule \\midrule\n'),
+    write('\\multicolumn{4}{r}{Total :=\\waterBill\\,€}\\\\ \n'),
+    write('\\bottomrule\n'),
+    write('\\end{spreadtab}\n'),
+
+    write('\\closing{}\n'),
+    write('\\end{letter}\n'),
+    write('\\end{document}').
 
 sum_up([],0).
 sum_up([X|Y],N) :- sum_up(Y, N1), N is N1+X.
@@ -85,14 +179,15 @@ clients_invoice() :-
 monthly_payment() :-
     write('Id of client:'), read(IdClient),
     write('Year:'), read(Year),
-    findall(T, (invoice(idclient(A), water_bill(T), _, year(B)), A=IdClient, B=Year), S),
-    write_monthly_payment(IdClient, S).
+    findall(T0, (invoice(idclient(A), water_bill(T0), _, year(B)), A=IdClient, B=Year), S0),
+    findall(T1, (invoice(idclient(A), _, month(T1), year(B)), A=IdClient, B=Year), S1),
+    write_monthly_payment(S0, S1).
 
-write_monthly_payment(IdClient, WaterBill) :-
-    tell(fich),
+write_monthly_payment(WaterBill, Months) :-
+    tell('Graph.txt'),
     write('Digraph {\n'),
     /*write('\t"'), write(IdClient), write('"'),*/
-    draw_list_payment(WaterBill),
+    draw_list_months(Months, WaterBill),
     write('}'),
     told.
 
@@ -101,10 +196,20 @@ draw_list_payment([A|B]) :-
     draw_payment(A),
     draw_list_payment(B).
 
+draw_list_months([], []).
+draw_list_months([A|B], [C|D]) :-
+    draw_months(A, C),
+    draw_payment(C),
+    draw_list_months(B, D).
+
 draw_payment(WaterBill) :-
-    invoice(_, water_bill(WaterBill), month(Month), _),
-    month_text(Month, MonthText),
-    write('\t"'), write(MonthText), write('"'), write('->'), write('"'), write(WaterBill), write('"'), nl.
+    write(WaterBill), write(' cubicmeters"\n').
+
+draw_months(Months, S) :-
+    month_text(Months, MonthText),
+    Size is (S*0.7),
+    write('  node[fixedsize=true, width='), write(Size), write(', height='), write(Size), write(']\n'),
+    write('  "'), write(MonthText), write(' - ').
 
 
 /*Insert the consumption of one client in one month*/
@@ -145,9 +250,9 @@ calculate_total() :-
 
 /*Total number of cubicmeters consummated over 5 cubicmeters of all clients in the last year*/
 over_5cubicmeters() :-
-    current_year(Year), LastYear is (Year-1),
+    current_year(Year), /*LastYear is (Year-1),*/
     nl, not(clients_consumption()), nl,
-    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=LastYear), S),
+    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=Year), S),
     sum_up(S, WaterTotal),
     write('Water Total: '), write(WaterTotal).
 
@@ -169,7 +274,6 @@ menu :-
     write('-- 6. Graph of a monthly payment of a client during one year       --\n'),
     write('-- 0. Exit and save                                                --\n'),
     write('---------------------------------------------------------------------\n\n'),
-
     read(A),
     choice(A).
 
@@ -185,6 +289,6 @@ choice(A) :-
 
 /*Save*/
 save :-
-    tell('fil.txt'),
+    tell('WaterConsumptionInvoices.txt'),
     listing,
     told.

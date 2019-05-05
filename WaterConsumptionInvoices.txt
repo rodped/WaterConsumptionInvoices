@@ -1,0 +1,569 @@
+
+menu :-
+    write('\n---------------------------------------------------------------------\n'),
+    write('-- 1. Insert the consumption of one client in one month            --\n'),
+    write('-- 2. Create the invoice of a client in Latex                      --\n'),
+    write('-- 3. Average consumption for one client in one year               --\n'),
+    write('-- 4. Total payment for one client at the end of one year          --\n'),
+    write('-- 5. Total of over 5 cubicmeters of all clients in the last year  --\n'),
+    write('-- 6. Graph of a monthly payment of a client during one year       --\n'),
+    write('-- 0. Exit and save                                                --\n'),
+    write('---------------------------------------------------------------------\n\n'),
+    read(A),
+    choice(A).
+
+:- dynamic pce_post_expansion_hook/2.
+:- multifile pce_post_expansion_hook/2.
+
+
+start :-
+    menu.
+
+draw_months(Months, S) :-
+    month_text(Months, MonthText),
+    write('  node[fixedsize=true, width='),
+    write(S),
+    write(', height='),
+    write(S),
+    write(']\n'),
+    write('  "'),
+    write(MonthText),
+    write(' - ').
+
+write_monthly_payment(IdClient, WaterBill, Months) :-
+    tell('Graph.txt'),
+    write('Digraph {\n'),
+    draw_list_months(Months, WaterBill),
+    write('}'),
+    told.
+
+month_text(M, MT) :-
+    (   M==1,
+        MT='January'
+    ;   M==2,
+        MT='February'
+    ;   M==3,
+        MT='March'
+    ;   M==4,
+        MT='April'
+    ;   M==5,
+        MT='May'
+    ;   M==6,
+        MT='June'
+    ;   M==7,
+        MT='July'
+    ;   M==8,
+        MT='August'
+    ;   M==9,
+        MT='September'
+    ;   M==10,
+        MT='October'
+    ;   M==11,
+        MT='November'
+    ;   M==12,
+        MT='December'
+    ).
+
+graph_payment :-
+    monthly_payment.
+
+draw_list_months([], []).
+draw_list_months([A|B], [C|D]) :-
+    draw_months(A, C),
+    draw_payment(C),
+    draw_list_months(B, D).
+
+static_text_latex :-
+    write('\n\\documentclass{scrlttr2}\n\n'),
+    write('\\usepackage[utf8]{inputenc}\n'),
+    write('\\usepackage[T1]{fontenc}\n'),
+    write('\\usepackage{textcomp}\n'),
+    write('\\usepackage{lmodern}\n'),
+    write('\\usepackage{color}\n'),
+    write('\\usepackage{spreadtab}\n'),
+    write('\\usepackage{tabularx}\n'),
+    write('\\usepackage{booktabs}\n'),
+    write('\\usepackage{datetime}\n\n'),
+    write('\\newcommand{\\taxID}{Tax Number: 617498954}\n'),
+    write('\\renewcommand{\\familydefault}{\\sfdefault}\n\n'),
+    write('\\setkomavar{subject}{Water Bill of \\monthname[\\clientmonth] \\clientyear }\n'),
+    write('\\setkomavar{invoice}{\\clientyear\\clientmonth-01}\n'),
+    write('\\setkomavar{date}[Date of invoice]{\\today}\n'),
+    write('\\setkomavar{fromaddress}{3792 Pleasant Hill Road\\\\Musterhausen}\n'),
+    write('\\setkomavar{backaddressseparator}{·}\n'),
+    write('\\setkomavar{fromemail}[\\Letter~]{\\color[gray]{.3}info@watersmile.com}\n'),
+    write('\\setkomavar{frommobilephone}{\\color[gray]{.3}+1\\,562\\,232\\,9486}\n'),
+    write('\\setkomavar{frombank}{IBAN: 125\\,4485\\,1026\\,7843\\,4513\\,11\\\\BIC: AQDQ\\,XX\\,AQ\\,PTO\\\\meineBank}\n'),
+    write('\\setkomavar{firstfoot}{\n'),
+    write('  \\rule[3pt]{\\textwidth}{.4pt} \\\\ \n'),
+    write('  \\parbox[t]{\\textwidth}{\\footnotesize\n'),
+    write('    \\begin{tabular}[t]{@{}l}\n'),
+    write('      \\usekomavar{frombank}\n'),
+    write('    \\end{tabular}\n'),
+    write('    \\hfill\n'),
+    write('    \\begin{tabular}[t]{l@{}}\n'),
+    write('      \\taxID\n'),
+    write('    \\end{tabular}\n'),
+    write('  }\n'),
+    write('}\n\n'),
+    write('\\KOMAoptions{\n'),
+    write('  firsthead=true,\n'),
+    write('  fromalign=right,\n'),
+    write('  fromrule=false,\n'),
+    write('  fromemail=true,\n'),
+    write('  frommobilephone=true,\n'),
+    write('  symbolicnames=true,\n'),
+    write('  numericaldate=true,\n'),
+    write('  firstfoot=true,\n'),
+    write('  parskip=full\n'),
+    write('}\n\n'),
+    write('\\makeatletter\n'),
+    write('\\@addtoplength{sigbeforevskip}{-1.5em}\n'),
+    write('\\@addtoplength{firstfootvpos}{-2em}\n'),
+    write('\\makeatother\n\n'),
+    write('\\begin{document}\n'),
+    write('\\begin{letter}{Nº: \\clientId\\\\Name: \\toname\\\\Addres: \\toaddress}\n'),
+    write('\\opening{Water Consumption}\n\n'),
+    write('\\STsetdecimalsep{{,}}\n'),
+    write('\\STautoround*{2}\n'),
+    write('\\begin{spreadtab}{{tabularx}{\\textwidth}{Xrrr}}\n'),
+    write('\\toprule\n'),
+    write('@\\multicolumn{1}{l}{Description} &\n'),
+    write('@\\multicolumn{1}{l}{Price Unit} &\n'),
+    write('@\\multicolumn{1}{l}{Quantity} &\n'),
+    write('@\\multicolumn{1}{l}{Total}       \\\\\n'),
+    write('\\midrule\n'),
+    write('@Sanitation fee                                     &\n'),
+    write(':={1.50}\\,€ & \\sanitationfeeQuantity & :=\\sanitationfeeTotal\\,€ \\\\ \n'),
+    write('@CubicMeters (0 to 5):&\n'),
+    write(':={0.50}\\,€ & \\cubicmetersZeroQuantity & :=\\cubicmetersZeroTotal\\,€ \\\\ \n'),
+    write('@CubicMeters (6 to 15):&\n'),
+    write(':={1.00}\\,€ & \\cubicmetersSixQuantity & :=\\cubicmetersSixTotal\\,€ \\\\ \n'),
+    write('\\midrule \\midrule\n'),
+    write('\\multicolumn{4}{r}{Total :=\\waterBill\\,€}\\\\ \n'),
+    write('\\bottomrule\n'),
+    write('\\end{spreadtab}\n'),
+    write('\\closing{}\n'),
+    write('\\end{letter}\n'),
+    write('\\end{document}').
+
+choice(A) :-
+    (   A==1,
+        insert_consumption,
+        nl,
+        menu
+    ;   A==2,
+        create_invoice_latex,
+        nl,
+        menu
+    ;   A==3,
+        calculate_average,
+        nl,
+        menu
+    ;   A==4,
+        calculate_total,
+        nl,
+        menu
+    ;   A==5,
+        over_5cubicmeters,
+        nl,
+        menu
+    ;   A==6,
+        graph_payment,
+        nl,
+        menu
+    ;   A==0,
+        save
+    ).
+
+over_5cubicmeters :-
+    current_year(C),
+    nl,
+    not(clients_consumption()),
+    nl,
+    findall(A,
+            ( consumption(_,
+                          _,
+                          _,
+                          _,
+                          _,
+                          cubicmeters6_15(A),
+                          _,
+                          year(B)),
+              B=C
+            ),
+            D),
+    sum_up(D, E),
+    write('Water Total: '),
+    write(E).
+
+sum_up([], 0).
+sum_up([X|Y], N) :-
+    sum_up(Y, N1),
+    N is N1+X.
+
+create_invoice :-
+    write('Id of client:'),
+    read(B),
+    write('Month:'),
+    read(D),
+    write('Year:'),
+    read(F),
+    consumption(idclient(A),
+                name(N),
+                address(O),
+                npersons(G),
+                cubicmeters0_5(H),
+                cubicmeters6_15(I),
+                month(C),
+                year(E)),
+    A=B,
+    C=D,
+    E=F,
+    J is G*1.5,
+    K is 0.5*H,
+    L is 1.0*I,
+    M is J+K+L,
+    assert(invoice(idclient(A),
+                   water_bill(M),
+                   month(C),
+                   year(E))),
+    latex_file(A,
+               N,
+               O,
+               G,
+               J,
+               H,
+               K,
+               I,
+               L,
+               M,
+               C,
+               E).
+
+:- multifile prolog_predicate_name/2.
+
+prolog_predicate_name(pce_principal:send_implementation(Id0, _, _), Id) :-
+    pce_portray:
+    (   method_from_id(Id0, SG),
+        atom_from_method(SG, Id)
+    ).
+prolog_predicate_name(pce_principal:get_implementation(Id0, _, _, _), Id) :-
+    pce_portray:
+    (   method_from_id(Id0, SG),
+        atom_from_method(SG, Id)
+    ).
+
+calculate_average :-
+    write('Id of Client:'),
+    read(C),
+    write('Year:'),
+    read(E),
+    nl,
+    not(clients_consumption()),
+    nl,
+    findall(A,
+            ( consumption(idclient(B),
+                          _,
+                          _,
+                          _,
+                          cubicmeters0_5(A),
+                          _,
+                          _,
+                          year(D)),
+              B=C,
+              D=E
+            ),
+            G),
+    findall(F,
+            ( consumption(idclient(B),
+                          _,
+                          _,
+                          _,
+                          _,
+                          cubicmeters6_15(F),
+                          _,
+                          year(D)),
+              B=C,
+              D=E
+            ),
+            H),
+    sum_up(G, A),
+    sum_up(H, F),
+    I is A+F,
+    J is I/12,
+    write('Water Average: '),
+    write(J).
+
+draw_payment(WaterBill) :-
+    write(WaterBill),
+    write(' cubicmeters"\n').
+
+monthly_payment :-
+    write('Id of client:'),
+    read(C),
+    write('Year:'),
+    read(E),
+    findall(A,
+            ( invoice(idclient(B),
+                      water_bill(A),
+                      _,
+                      year(D)),
+              B=C,
+              D=E
+            ),
+            G),
+    findall(F,
+            ( invoice(idclient(B), _, month(F), year(D)),
+              B=C,
+              D=E
+            ),
+            H),
+    write_monthly_payment(C, G, H).
+
+current_year(Y) :-
+    get_time(T),
+    stamp_date_time(T,
+                    date(Y,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _),
+                    'UTC').
+
+:- dynamic prolog_exception_hook/4.
+:- multifile prolog_exception_hook/4.
+
+prolog_exception_hook(error(E, context(Ctx0, Msg)), error(E, context(prolog_stack(Stack), Msg)), Fr, GuardSpec) :-
+    prolog_stack:
+    (   current_prolog_flag(backtrace, true),
+        \+ is_stack(Ctx0, _Frames),
+        (   atom(GuardSpec)
+        ->  debug(backtrace,
+                  'Got uncaught (guard = ~q) exception ~p (Ctx0=~p)',
+                  [GuardSpec, E, Ctx0]),
+            stack_guard(GuardSpec),
+            Guard=GuardSpec
+        ;   prolog_frame_attribute(GuardSpec,
+                                   predicate_indicator,
+                                   Guard),
+            debug(backtrace,
+                  'Got exception ~p (Ctx0=~p, Catcher=~p)',
+                  [E, Ctx0, Guard]),
+            stack_guard(Guard)
+        ),
+        (   current_prolog_flag(backtrace_depth, Depth)
+        ->  Depth>0
+        ;   Depth=20
+        ),
+        get_prolog_backtrace(Depth,
+                             Stack0,
+                             [frame(Fr), guard(Guard)]),
+        debug(backtrace, 'Stack = ~p', [Stack0]),
+        clean_stack(Stack0, Stack1),
+        join_stacks(Ctx0, Stack1, Stack)
+    ).
+
+:- multifile prolog_clause_name/2.
+
+prolog_clause_name(Ref, Name) :-
+    pce_portray:
+    (   clause(Head, _, Ref),
+        user:prolog_predicate_name(Head, Name)
+    ).
+
+latex_file(A, B, C, D, E, F, G, H, I, J, K, L) :-
+    tell('WaterInvoice.txt'),
+    write('\\newcommand{\\clientId}{'),
+    write(A),
+    write('}\n'),
+    write('\\newcommand{\\toname}{'),
+    write(B),
+    write('}\n'),
+    write('\\newcommand{\\toaddress}{'),
+    write(C),
+    write('}\n'),
+    write('\\newcommand{\\sanitationfeeQuantity}{'),
+    write(D),
+    write('}\n'),
+    write('\\newcommand{\\sanitationfeeTotal}{'),
+    write(E),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersZeroQuantity}{'),
+    write(F),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersZeroTotal}{'),
+    write(G),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersSixQuantity}{'),
+    write(H),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersSixTotal}{'),
+    write(I),
+    write('}\n'),
+    write('\\newcommand{\\waterBill}{'),
+    write(J),
+    write('}\n'),
+    write('\\newcommand{\\clientmonth}{'),
+    write(K),
+    write('}\n'),
+    write('\\newcommand{\\clientyear}{'),
+    write(L),
+    write('}\n'),
+    static_text_latex,
+    told.
+
+calculate_total :-
+    write('Id of client:'),
+    read(C),
+    write('Year:'),
+    read(E),
+    nl,
+    not(clients_invoice()),
+    nl,
+    findall(A,
+            ( invoice(idclient(B),
+                      water_bill(A),
+                      _,
+                      year(D)),
+              B=C,
+              D=E
+            ),
+            F),
+    sum_up(F, G),
+    write('Water Total: '),
+    write(G).
+
+:- dynamic consumption/8.
+
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(2), month(4), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(5), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(6), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(1), cubicmeters6_15(0), month(7), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(4), cubicmeters6_15(0), month(8), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(2), cubicmeters6_15(0), month(9), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(10), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
+consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
+consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(1), year(2019)).
+
+save :-
+    tell('WaterConsumptionInvoices.txt'),
+    listing,
+    told.
+
+:- multifile url_path/2.
+
+
+insert_consumption :-
+    write('Client Id:'),
+    read(A),
+    write('Name:'),
+    read(B),
+    write('Address:'),
+    read(C),
+    write('Number of Persons:'),
+    read(D),
+    write('CubicMeters (0 to 5):'),
+    read(E),
+    write('CubicMeters (6 to 15):'),
+    read(F),
+    write('Month:'),
+    read(G),
+    write('Year:'),
+    read(H),
+    !,
+    assert(consumption(idclient(A),
+                       name(B),
+                       address(C),
+                       npersons(D),
+                       cubicmeters0_5(E),
+                       cubicmeters6_15(F),
+                       month(G),
+                       year(H))).
+
+clients_consumption :-
+    consumption(idclient(A),
+                name(B),
+                address(C),
+                npersons(D),
+                cubicmeters0_5(E),
+                cubicmeters6_15(F),
+                month(G),
+                year(H)),
+    write('Client Id:'),
+    write(A),
+    write(' Name:'),
+    write(B),
+    write(' Address:'),
+    write(C),
+    write(' Number of Persons:'),
+    write(D),
+    write(' CubicMeters (0 to 5):'),
+    write(E),
+    write(' CubicMeters (6 to 15):'),
+    write(F),
+    write(' Month:'),
+    write(G),
+    write(' Year:'),
+    write(H),
+    nl,
+    fail.
+
+:- dynamic pce_pre_expansion_hook/2.
+:- multifile pce_pre_expansion_hook/2.
+
+pce_pre_expansion_hook(In, Out) :-
+    emacs_extend:emacs_expansion(In, Out).
+
+:- dynamic invoice/4.
+
+invoice(idclient(1000), water_bill(3), month(1), year(2019)).
+invoice(idclient(1000), water_bill(13), month(2), year(2019)).
+invoice(idclient(1000), water_bill(22), month(3), year(2019)).
+invoice(idclient(1000), water_bill(31), month(4), year(2019)).
+invoice(idclient(1000), water_bill(17), month(5), year(2019)).
+invoice(idclient(1000), water_bill(17), month(6), year(2019)).
+invoice(idclient(1000), water_bill(7), month(7), year(2019)).
+invoice(idclient(1000), water_bill(6), month(8), year(2019)).
+invoice(idclient(1000), water_bill(10), month(9), year(2019)).
+invoice(idclient(1000), water_bill(7), month(10), year(2019)).
+invoice(idclient(1000), water_bill(16), month(11), year(2019)).
+invoice(idclient(1000), water_bill(30), month(12), year(2019)).
+invoice(idclient(1100), water_bill(3.5), month(1), year(2019)).
+
+create_invoice_latex :-
+    create_invoice.
+
+draw_list_payment([]).
+draw_list_payment([A|B]) :-
+    draw_payment(A),
+    draw_list_payment(B).
+
+:- thread_local thread_message_hook/3.
+:- dynamic thread_message_hook/3.
+:- volatile thread_message_hook/3.
+
+
+clients_invoice :-
+    invoice(idclient(A),
+            water_bill(B),
+            month(C),
+            year(D)),
+    write('Client Id:'),
+    write(A),
+    write(' Name:'),
+    write(B),
+    write(' Month:'),
+    write(C),
+    write(' Year:'),
+    write(D),
+    nl,
+    fail.

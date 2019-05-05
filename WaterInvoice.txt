@@ -1,0 +1,92 @@
+\newcommand{\clientId}{1100}
+\newcommand{\toname}{Joao}
+\newcommand{\toaddress}{Lisboa}
+\newcommand{\sanitationfeeQuantity}{1}
+\newcommand{\sanitationfeeTotal}{1.5}
+\newcommand{\cubicmetersZeroQuantity}{4}
+\newcommand{\cubicmetersZeroTotal}{2.0}
+\newcommand{\cubicmetersSixQuantity}{0}
+\newcommand{\cubicmetersSixTotal}{0.0}
+\newcommand{\waterBill}{3.5}
+\newcommand{\clientmonth}{1}
+\newcommand{\clientyear}{2019}
+
+\documentclass{scrlttr2}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage{color}
+\usepackage{spreadtab}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{datetime}
+
+\newcommand{\taxID}{Tax Number: 617498954}
+\renewcommand{\familydefault}{\sfdefault}
+
+\setkomavar{subject}{Water Bill of \monthname[\clientmonth] \clientyear }
+\setkomavar{invoice}{\clientyear\clientmonth-01}
+\setkomavar{date}[Date of invoice]{\today}
+\setkomavar{fromaddress}{3792 Pleasant Hill Road\\Musterhausen}
+\setkomavar{backaddressseparator}{·}
+\setkomavar{fromemail}[\Letter~]{\color[gray]{.3}info@watersmile.com}
+\setkomavar{frommobilephone}{\color[gray]{.3}+1\,562\,232\,9486}
+\setkomavar{frombank}{IBAN: 125\,4485\,1026\,7843\,4513\,11\\BIC: AQDQ\,XX\,AQ\,PTO\\meineBank}
+\setkomavar{firstfoot}{
+  \rule[3pt]{\textwidth}{.4pt} \\ 
+  \parbox[t]{\textwidth}{\footnotesize
+    \begin{tabular}[t]{@{}l}
+      \usekomavar{frombank}
+    \end{tabular}
+    \hfill
+    \begin{tabular}[t]{l@{}}
+      \taxID
+    \end{tabular}
+  }
+}
+
+\KOMAoptions{
+  firsthead=true,
+  fromalign=right,
+  fromrule=false,
+  fromemail=true,
+  frommobilephone=true,
+  symbolicnames=true,
+  numericaldate=true,
+  firstfoot=true,
+  parskip=full
+}
+
+\makeatletter
+\@addtoplength{sigbeforevskip}{-1.5em}
+\@addtoplength{firstfootvpos}{-2em}
+\makeatother
+
+\begin{document}
+\begin{letter}{Nº: \clientId\\Name: \toname\\Addres: \toaddress}
+\opening{Water Consumption}
+
+\STsetdecimalsep{{,}}
+\STautoround*{2}
+\begin{spreadtab}{{tabularx}{\textwidth}{Xrrr}}
+\toprule
+@\multicolumn{1}{l}{Description} &
+@\multicolumn{1}{l}{Price Unit} &
+@\multicolumn{1}{l}{Quantity} &
+@\multicolumn{1}{l}{Total}       \\
+\midrule
+@Sanitation fee                                     &
+:={1.50}\,€ & \sanitationfeeQuantity & :=\sanitationfeeTotal\,€ \\ 
+@CubicMeters (0 to 5):&
+:={0.50}\,€ & \cubicmetersZeroQuantity & :=\cubicmetersZeroTotal\,€ \\ 
+@CubicMeters (6 to 15):&
+:={1.00}\,€ & \cubicmetersSixQuantity & :=\cubicmetersSixTotal\,€ \\ 
+\midrule \midrule
+\multicolumn{4}{r}{Total :=\waterBill\,€}\\ 
+\bottomrule
+\end{spreadtab}
+\closing{}
+\end{letter}
+\end{document}
