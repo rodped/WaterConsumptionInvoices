@@ -51,17 +51,17 @@ current_year(Y) :-
     stamp_date_time(T, date(Y, _, _, _, _, _, _, _, _), 'UTC').
 
 month_text(M, MT) :-
-    M == 1, MT = 'January',
-    M == 2, MT = 'February',
-    M == 3, MT = 'March',
-    M == 4, MT = 'April',
-    M == 5, MT = 'May',
-    M == 6, MT = 'June',
-    M == 7, MT = 'July',
-    M == 8, MT = 'August',
-    M == 9, MT = 'September',
-    M == 10, MT = 'October',
-    M == 11, MT = 'November',
+    M == 1, MT = 'January';
+    M == 2, MT = 'February';
+    M == 3, MT = 'March';
+    M == 4, MT = 'April';
+    M == 5, MT = 'May';
+    M == 6, MT = 'June';
+    M == 7, MT = 'July';
+    M == 8, MT = 'August';
+    M == 9, MT = 'September';
+    M == 10, MT = 'October';
+    M == 11, MT = 'November';
     M == 12, MT = 'December'.
 
 clients_consumption() :-
@@ -74,6 +74,13 @@ clients_consumption() :-
     write(' CubicMeters (6 to 15):'), write(F),
     write(' Month:'), write(G),
     write(' Year:'), write(H), nl, fail.
+
+clients_invoice() :-
+    invoice(idclient(A), water_bill(B), month(C), year(D)),
+    write('Client Id:'), write(A),
+    write(' Name:'), write(B),
+    write(' Month:'), write(C),
+    write(' Year:'), write(D), nl, fail.
 
 monthly_payment() :-
     write('Id of client:'), read(IdClient),
@@ -120,8 +127,10 @@ create_invoice_latex() :-
 calculate_average() :-
     write('Id of Client:'), read(IdClient),
     write('Year:'), read(Year),
-    findall(T, (invoice(idclient(A), water_bill(T), _, year(B)), A=IdClient, B=Year), S),
-    sum_up(S, WaterTotal),
+    nl, not(clients_consumption()), nl,
+    findall(W0_5, (consumption(idclient(C), _, _, _, cubicmeters0_5(W0_5), _, _, year(Y)), C=IdClient, Y=Year), S0),
+    findall(W6_15, (consumption(idclient(C), _, _, _, _, cubicmeters6_15(W6_15), _, year(Y)), C=IdClient, Y=Year), S1),
+    sum_up(S0, W0_5), sum_up(S1, W6_15), WaterTotal is (W0_5+W6_15),
     WaterAverage is (WaterTotal/12),
     write('Water Average: '), write(WaterAverage).
 
@@ -129,15 +138,16 @@ calculate_average() :-
 calculate_total() :-
     write('Id of client:'), read(IdClient),
     write('Year:'), read(Year),
+    nl, not(clients_invoice()), nl,
     findall(T, (invoice(idclient(A), water_bill(T), _, year(B)), A=IdClient, B=Year), S),
     sum_up(S, WaterTotal),
     write('Water Total: '), write(WaterTotal).
 
 /*Total number of cubicmeters consummated over 5 cubicmeters of all clients in the last year*/
 over_5cubicmeters() :-
-    current_year(Year),
-    not(clients_consumption()),
-    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=Year), S),
+    current_year(Year), LastYear is (Year-1),
+    nl, not(clients_consumption()), nl,
+    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=LastYear), S),
     sum_up(S, WaterTotal),
     write('Water Total: '), write(WaterTotal).
 
@@ -152,7 +162,7 @@ start :- menu.
 menu :-
     write('\n---------------------------------------------------------------------\n'),
     write('-- 1. Insert the consumption of one client in one month            --\n'),
-    write('-- 2. Create the invoice of a client                               --\n'),
+    write('-- 2. Create the invoice of a client in Latex                      --\n'),
     write('-- 3. Average consumption for one client in one year               --\n'),
     write('-- 4. Total payment for one client at the end of one year          --\n'),
     write('-- 5. Total of over 5 cubicmeters of all clients in the last year  --\n'),

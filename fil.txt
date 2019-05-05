@@ -66,9 +66,6 @@ menu :-
     read(A),
     choice(A).
 
-month_text(M) :-
-    stamp_date_time(_, date(_, M, _), 'UTC').
-
 start :-
     menu.
 
@@ -169,23 +166,24 @@ show_consumption(C, Y) :-
 
 
 over_5cubicmeters :-
-    current_year(C),
+    current_year(A),
+    D is A+ -1,
     not(clients_consumption()),
-    findall(A,
+    findall(B,
             ( consumption(_,
                           _,
                           _,
                           _,
                           _,
-                          cubicmeters6_15(A),
+                          cubicmeters6_15(B),
                           _,
-                          year(B)),
-              B=C
+                          year(C)),
+              C=D-1
             ),
-            D),
-    sum_up(D, E),
+            E),
+    sum_up(E, F),
     write('Water Total: '),
-    write(E).
+    write(F).
 
 monthly_payment :-
     write('Id of client:'),
@@ -299,10 +297,38 @@ current_year(Y) :-
 
 consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(1), year(2019)).
 consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(2), month(2), year(2019)).
+consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(3), year(2018)).
 
 :- dynamic pce_post_expansion_hook/2.
 :- multifile pce_post_expansion_hook/2.
 
+
+month_text(M, MT) :-
+    (   M==1,
+        MT='January'
+    ;   M==2,
+        MT='February'
+    ;   M==3,
+        MT='March'
+    ;   M==4,
+        MT='April'
+    ;   M==5,
+        MT='May'
+    ;   M==6,
+        MT='June'
+    ;   M==7,
+        MT='July'
+    ;   M==8,
+        MT='August'
+    ;   M==9,
+        MT='September'
+    ;   M==10,
+        MT='October'
+    ;   M==11,
+        MT='November'
+    ;   M==12,
+        MT='December'
+    ).
 
 :- multifile prolog_predicate_name/2.
 
@@ -323,18 +349,37 @@ calculate_average :-
     write('Year:'),
     read(E),
     findall(A,
-            ( invoice(idclient(B),
-                      water_bill(A),
-                      _,
-                      year(D)),
+            ( consumption(idclient(B),
+                          _,
+                          _,
+                          _,
+                          cubicmeters0_5(A),
+                          _,
+                          _,
+                          year(D)),
               B=C,
               D=E
             ),
-            F),
-    sum_up(F, G),
-    H is G/12,
+            G),
+    findall(F,
+            ( consumption(idclient(B),
+                          _,
+                          _,
+                          _,
+                          _,
+                          cubicmeters6_15(F),
+                          _,
+                          year(D)),
+              B=C,
+              D=E
+            ),
+            H),
+    sum_up(G, A),
+    sum_up(H, F),
+    I is A+F,
+    J is I/12,
     write('Water Average: '),
-    write(H).
+    write(J).
 
 draw_list_payment([]).
 draw_list_payment([A|B]) :-
@@ -345,6 +390,9 @@ draw_list_payment([A|B]) :-
 
 invoice(idclient(1100), water_bill(3.5), month(1), year(2019)).
 invoice(idclient(1100), water_bill(7.5), month(2), year(2019)).
+invoice(idclient(1100), water_bill(7.5), month(2), year(2019)).
+invoice(idclient(1100), water_bill(7.5), month(2), year(2019)).
+invoice(idclient(1100), water_bill(8.5), month(3), year(2018)).
 
 :- multifile prolog_clause_name/2.
 
@@ -374,9 +422,9 @@ calculate_total :-
 
 draw_payment(WaterBill) :-
     invoice(_, water_bill(WaterBill), month(Month), _),
-    month_text(Month),
+    month_text(Month, MonthText),
     write('\t"'),
-    write(Month),
+    write(MonthText),
     write('"'),
     write(->),
     write('"'),
