@@ -3,12 +3,12 @@
 \newcommand{\toaddress}{Lisboa}
 \newcommand{\sanitationfeeQuantity}{1}
 \newcommand{\sanitationfeeTotal}{1.5}
-\newcommand{\cubicmetersZeroQuantity}{4}
-\newcommand{\cubicmetersZeroTotal}{2.0}
+\newcommand{\cubicmetersZeroQuantity}{1}
+\newcommand{\cubicmetersZeroTotal}{0.5}
 \newcommand{\cubicmetersSixQuantity}{0}
 \newcommand{\cubicmetersSixTotal}{0.0}
-\newcommand{\waterBill}{3.5}
-\newcommand{\clientmonth}{1}
+\newcommand{\waterBill}{2.0}
+\newcommand{\clientmonth}{2}
 \newcommand{\clientyear}{2019}
 
 \documentclass{scrlttr2}

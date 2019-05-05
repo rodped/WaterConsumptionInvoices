@@ -1,6 +1,7 @@
 :- dynamic consumption/8.
 :- dynamic invoice/4.
 
+/*Some information for test*/
 consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
 consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
 consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
@@ -176,13 +177,6 @@ clients_invoice() :-
     write(' Month:'), write(C),
     write(' Year:'), write(D), nl, fail.
 
-monthly_payment() :-
-    write('Id of client:'), read(IdClient),
-    write('Year:'), read(Year),
-    findall(T0, (invoice(idclient(A), water_bill(T0), _, year(B)), A=IdClient, B=Year), S0),
-    findall(T1, (invoice(idclient(A), _, month(T1), year(B)), A=IdClient, B=Year), S1),
-    write_monthly_payment(S0, S1).
-
 write_monthly_payment(WaterBill, Months) :-
     tell('Graph.txt'),
     write('Digraph {\n'),
@@ -191,15 +185,10 @@ write_monthly_payment(WaterBill, Months) :-
     write('}'),
     told.
 
-draw_list_payment([]).
-draw_list_payment([A|B]) :-
-    draw_payment(A),
-    draw_list_payment(B).
-
 draw_list_months([], []).
 draw_list_months([A|B], [C|D]) :-
     draw_months(A, C),
-    draw_payment(C),
+    /*draw_payment(C),*/
     draw_list_months(B, D).
 
 draw_payment(WaterBill) :-
@@ -207,9 +196,9 @@ draw_payment(WaterBill) :-
 
 draw_months(Months, S) :-
     month_text(Months, MonthText),
-    Size is (S*0.8),
-    write('  node[fixedsize=true, width='), write(Size), write(', height='), write(Size), write(']\n'),
-    write('  "'), write(MonthText), write(' - ').
+    Size is (S*0.1),
+    write('  '), write(Months), write('[label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='), write(Size), write(', height='), write(Size), write(']\n'),
+    write('  '), write(Months), write(' -> '), write(MonthText), nl.
 
 
 /*Insert the consumption of one client in one month*/
@@ -258,7 +247,11 @@ over_5cubicmeters() :-
 
 /*Generate a graph connecting the monthly payment of a client during one year*/
 graph_payment() :-
-    monthly_payment().
+    write('Id of client:'), read(IdClient),
+    write('Year:'), read(Year),
+    findall(T0, (invoice(idclient(A), water_bill(T0), _, year(B)), A=IdClient, B=Year), S0),
+    findall(T1, (invoice(idclient(A), _, month(T1), year(B)), A=IdClient, B=Year), S1),
+    write_monthly_payment(S0, S1).
 
 /*Start the program*/
 start :- menu.

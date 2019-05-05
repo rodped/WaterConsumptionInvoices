@@ -21,21 +21,19 @@ start :-
 
 draw_months(Months, S) :-
     month_text(Months, MonthText),
-    write('  node[fixedsize=true, width='),
-    write(S),
+    Size is S*0.1,
+    write('  '),
+    write(Months),
+    write('[label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='),
+    write(Size),
     write(', height='),
-    write(S),
+    write(Size),
     write(']\n'),
-    write('  "'),
+    write('  '),
+    write(Months),
+    write(' -> '),
     write(MonthText),
-    write(' - ').
-
-write_monthly_payment(IdClient, WaterBill, Months) :-
-    tell('Graph.txt'),
-    write('Digraph {\n'),
-    draw_list_months(Months, WaterBill),
-    write('}'),
-    told.
+    nl.
 
 month_text(M, MT) :-
     (   M==1,
@@ -65,12 +63,37 @@ month_text(M, MT) :-
     ).
 
 graph_payment :-
-    monthly_payment.
+    write('Id of client:'),
+    read(C),
+    write('Year:'),
+    read(E),
+    findall(A,
+            ( invoice(idclient(B),
+                      water_bill(A),
+                      _,
+                      year(D)),
+              B=C,
+              D=E
+            ),
+            G),
+    findall(F,
+            ( invoice(idclient(B), _, month(F), year(D)),
+              B=C,
+              D=E
+            ),
+            H),
+    write_monthly_payment(G, H).
+
+write_monthly_payment(WaterBill, Months) :-
+    tell('Graph.txt'),
+    write('Digraph {\n'),
+    draw_list_months(Months, WaterBill),
+    write('}'),
+    told.
 
 draw_list_months([], []).
 draw_list_months([A|B], [C|D]) :-
     draw_months(A, C),
-    draw_payment(C),
     draw_list_months(B, D).
 
 static_text_latex :-
@@ -299,28 +322,6 @@ draw_payment(WaterBill) :-
     write(WaterBill),
     write(' cubicmeters"\n').
 
-monthly_payment :-
-    write('Id of client:'),
-    read(C),
-    write('Year:'),
-    read(E),
-    findall(A,
-            ( invoice(idclient(B),
-                      water_bill(A),
-                      _,
-                      year(D)),
-              B=C,
-              D=E
-            ),
-            G),
-    findall(F,
-            ( invoice(idclient(B), _, month(F), year(D)),
-              B=C,
-              D=E
-            ),
-            H),
-    write_monthly_payment(C, G, H).
-
 current_year(Y) :-
     get_time(T),
     stamp_date_time(T,
@@ -453,6 +454,7 @@ consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cub
 consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
 consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
 consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(1), year(2019)).
+consumption(idclient(1100), name('Joao'), address('Lisboa'), npersons(1), cubicmeters0_5(1), cubicmeters6_15(0), month(2), year(2019)).
 
 save :-
     tell('WaterConsumptionInvoices.txt'),
@@ -538,14 +540,10 @@ invoice(idclient(1000), water_bill(7), month(10), year(2019)).
 invoice(idclient(1000), water_bill(16), month(11), year(2019)).
 invoice(idclient(1000), water_bill(30), month(12), year(2019)).
 invoice(idclient(1100), water_bill(3.5), month(1), year(2019)).
+invoice(idclient(1100), water_bill(2.0), month(2), year(2019)).
 
 create_invoice_latex :-
     create_invoice.
-
-draw_list_payment([]).
-draw_list_payment([A|B]) :-
-    draw_payment(A),
-    draw_list_payment(B).
 
 :- thread_local thread_message_hook/3.
 :- dynamic thread_message_hook/3.
