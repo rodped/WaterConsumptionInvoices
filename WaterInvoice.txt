@@ -1,15 +1,15 @@
-\newcommand{\clientId}{1100}
-\newcommand{\toname}{Peter}
-\newcommand{\toaddress}{London}
-\newcommand{\sanitationfeeQuantity}{1}
-\newcommand{\sanitationfeeTotal}{1.5}
-\newcommand{\cubicmetersZeroQuantity}{3.65}
-\newcommand{\cubicmetersZeroTotal}{1.825}
+\newcommand{\clientId}{1400}
+\newcommand{\toname}{Sue}
+\newcommand{\toaddress}{New York}
+\newcommand{\sanitationfeeQuantity}{2}
+\newcommand{\sanitationfeeTotal}{3.0}
+\newcommand{\cubicmetersZeroQuantity}{3.7}
+\newcommand{\cubicmetersZeroTotal}{1.85}
 \newcommand{\cubicmetersSixQuantity}{0}
 \newcommand{\cubicmetersSixTotal}{0.0}
-\newcommand{\waterBill}{3.325}
+\newcommand{\waterBill}{4.85}
 \newcommand{\clientmonth}{2}
-\newcommand{\clientyear}{2019}
+\newcommand{\clientyear}{2018}
 
 \documentclass{scrlttr2}
 

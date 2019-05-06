@@ -150,51 +150,34 @@ month_text(M, MT) :-
     M == 6, MT = 'Jun';
     M == 7, MT = 'Jul';
     M == 8, MT = 'Aug';
-    M == 9, MT = 'Sept';
+    M == 9, MT = 'Sep';
     M == 10, MT = 'Oct';
     M == 11, MT = 'Nov';
     M == 12, MT = 'Dec'.
 
 /*Write the consumptions of all clients*/
-clients_consumption() :-
-    consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
-    write('Client Id:'), write(A),
-    write(' Name:'), write(B),
-    write(' Address:'), write(C),
-    write(' Number of Persons:'), write(D),
-    write(' CubicMeters (0 to 5):'), write(E),
-    write(' CubicMeters (6 to 15):'), write(F),
-    write(' Month:'), write(G),
-    write(' Year:'), write(H), nl, fail.
+clients_consumption(H) :-
+    consumption(idclient(A), name(B), _, _, _, cubicmeters6_15(F), month(G), year(H)),
+    month_text(G, MT),
+    write('\n   '), write(MT),
+    write('   Client Id:'), write(A),
+    write('   Name:'), write(B),
+    write('   [6,15]M³:'), write(F), fail.
 
 /*Write the consumptions of one client in one year*/
 client_consumption(A, H) :-
-    consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
-    write('Client Id:'), write(A),
-    write(' Name:'), write(B),
-    write(' Address:'), write(C),
-    write(' Number of Persons:'), write(D),
-    write(' CubicMeters (0 to 5):'), write(E),
-    write(' CubicMeters (6 to 15):'), write(F),
-    write(' Month:'), write(G),
-    write(' Year:'), write(H), nl, fail.
-
-/*Write the invoices of all clients*/
-clients_invoice() :-
-    invoice(idclient(A), water_bill(B), month(C), year(D)),
-    write('Client Id:'), write(A),
-    write(' Water bill:'), write(B),
-    write(' Month:'), write(C),
-    write(' Year:'), write(D), nl, fail.
+    consumption(idclient(A), _, _, _, cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
+    month_text(G, MT),
+    write('\n   '), write(MT),
+    write('   [0,5]M³:'), write(E),
+    write('   [6,15]M³:'), write(F), fail.
 
 /*Write the invoices of one client in one year*/
 client_invoice(A, D) :-
     invoice(idclient(A), water_bill(B), month(C), year(D)),
-    write('Client Id:'), write(A),
-    write(' Water bill:'), write(B),
-    write(' Month:'), write(C),
-    write(' Year:'), write(D), nl, fail.
-
+    month_text(C, MT),
+    write('\n   '), write(MT),
+    write('   '), write(B), write('€'), fail.
 
 /*Create the Graph with payment of a client*/
 write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
@@ -248,29 +231,41 @@ create_invoice_latex() :-
 calculate_average() :-
     write('Id of Client:'), read(IdClient),
     write('Year:'), read(Year),
-    nl, not(client_consumption(IdClient, Year)), nl,
+    consumption(idclient(IdClient), name(Name), _, _, _, _, _, _),
+    write('\n\tWater Consumption of '), write(Year), write(', '), write(Name),
+    write('\n---------------------------------------------------------------------'),
+    not(client_consumption(IdClient, Year)),
+    write('\n---------------------------------------------------------------------\n'),
     findall(W0_5, (consumption(idclient(C), _, _, _, cubicmeters0_5(W0_5), _, _, year(Y)), C=IdClient, Y=Year), S0),
     findall(W6_15, (consumption(idclient(C), _, _, _, _, cubicmeters6_15(W6_15), _, year(Y)), C=IdClient, Y=Year), S1),
     sum_up(S0, W0_5), sum_up(S1, W6_15), WaterTotal is (W0_5+W6_15),
     WaterAverage is (WaterTotal/12),
-    write('Water Average: '), write(WaterAverage).
+    write('\tWater Average: '), write(WaterAverage).
 
 /*Calculate the total payment for one client at the end of one year*/
 calculate_total() :-
     write('Id of client:'), read(IdClient),
     write('Year:'), read(Year),
-    nl, not(client_invoice(IdClient, Year)), nl,
+    consumption(idclient(IdClient), name(Name), _, _, _, _, _, _),
+    write('\n\tWater Bill of '), write(Year), write(', '), write(Name),
+    write('\n---------------------------------------------------------------------'),
+    not(client_invoice(IdClient, Year)),
+    write('\n---------------------------------------------------------------------\n'),
     findall(T, (invoice(idclient(A), water_bill(T), _, year(B)), A=IdClient, B=Year), S),
     sum_up(S, WaterTotal),
-    write('Water Total: '), write(WaterTotal).
+    write('\tWater Bill: '), write(WaterTotal), write('€').
 
 /*Total number of cubicmeters consummated over 5 cubicmeters of all clients in the last year*/
 over_5cubicmeters() :-
     current_year(Year), /*LastYear is (Year-1),*/
-    nl, not(clients_consumption()), nl,
-    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=Year), S),
+    Last_Year is (Year-1),
+    write('\n\tOver 5 cubicmeters of '), write(Last_Year),
+    write('\n---------------------------------------------------------------------'),
+    not(clients_consumption(Last_Year)),
+    write('\n---------------------------------------------------------------------\n'),
+    findall(W, (consumption(_, _, _, _, _, cubicmeters6_15(W), _, year(Y)), Y=Last_Year), S),
     sum_up(S, WaterTotal),
-    write('Water Total: '), write(WaterTotal).
+    write('\tWater Total: '), write(WaterTotal), write('M³').
 
 /*Generate a graph connecting the monthly payment of a client during one year*/
 graph_payment() :-
