@@ -2,44 +2,36 @@
 :- dynamic invoice/4.
 
 /*Some information for test*/
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(2), month(4), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(5), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(6), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(1), cubicmeters6_15(0), month(7), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(4), cubicmeters6_15(0), month(8), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(2), cubicmeters6_15(0), month(9), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(10), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
-consumption(idclient(1000), name('Pedro'), address('Braganca'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(2), month(4), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(5), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(6), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(1), cubicmeters6_15(0), month(7), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(4), cubicmeters6_15(0), month(8), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(2), cubicmeters6_15(0), month(9), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(10), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
 
 invoice(idclient(1000), water_bill(3), month(1), year(2019)).
-invoice(idclient(1000), water_bill(13), month(2), year(2019)).
-invoice(idclient(1000), water_bill(22), month(3), year(2019)).
-invoice(idclient(1000), water_bill(31), month(4), year(2019)).
-invoice(idclient(1000), water_bill(17), month(5), year(2019)).
-invoice(idclient(1000), water_bill(17), month(6), year(2019)).
-invoice(idclient(1000), water_bill(7), month(7), year(2019)).
-invoice(idclient(1000), water_bill(6), month(8), year(2019)).
-invoice(idclient(1000), water_bill(10), month(9), year(2019)).
-invoice(idclient(1000), water_bill(7), month(10), year(2019)).
-invoice(idclient(1000), water_bill(16), month(11), year(2019)).
-invoice(idclient(1000), water_bill(30), month(12), year(2019)).
+invoice(idclient(1000), water_bill(3.5), month(2), year(2019)).
+invoice(idclient(1000), water_bill(6.5), month(3), year(2019)).
+invoice(idclient(1000), water_bill(7.5), month(4), year(2019)).
+invoice(idclient(1000), water_bill(3), month(5), year(2019)).
+invoice(idclient(1000), water_bill(8.5), month(6), year(2019)).
+invoice(idclient(1000), water_bill(2), month(7), year(2019)).
+invoice(idclient(1000), water_bill(5), month(8), year(2019)).
+invoice(idclient(1000), water_bill(2.5), month(9), year(2019)).
+invoice(idclient(1000), water_bill(3), month(10), year(2019)).
+invoice(idclient(1000), water_bill(5), month(11), year(2019)).
+invoice(idclient(1000), water_bill(8.5), month(12), year(2019)).
+
 
 /*Auxiliary*/
-create_invoice() :-
-    write('Id of client:'), read(IdClient),
-    write('Month:'), read(Month),
-    write('Year:'), read(Year),
-    consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
-    A=IdClient, G=Month, H=Year,
-    SFT is (D*1.5), C0_5T is (0.5*E), C6_15T is (1.0*F),
-    WaterBill is (SFT+C0_5T+C6_15T),
-    assert(invoice(idclient(A), water_bill(WaterBill), month(G), year(H))),
-    latex_file(A, B, C, D, SFT, E, C0_5T, F, C6_15T, WaterBill, G, H).
 
+/*Create Latex file*/
 latex_file(ClientId, Name, Address, SanitationfeeQuantity, SanitationfeeTotal, CubicmetersZeroQuantity, CubicmetersZeroTotal, CubicmetersSixQuantity, CubicmetersSixTotal, WaterBill, Month, Year) :-
     tell('WaterInvoice.txt'),
     write('\\newcommand{\\clientId}{'), write(ClientId), write('}\n'),
@@ -57,6 +49,7 @@ latex_file(ClientId, Name, Address, SanitationfeeQuantity, SanitationfeeTotal, C
     static_text_latex(),
     told.
 
+/*Static text for latex file*/
 static_text_latex() :-
     write('\n\\documentclass{scrlttr2}\n\n'),
     write('\\usepackage[utf8]{inputenc}\n'),
@@ -138,27 +131,31 @@ static_text_latex() :-
     write('\\end{letter}\n'),
     write('\\end{document}').
 
+/*Sum elements of an array*/
 sum_up([],0).
 sum_up([X|Y],N) :- sum_up(Y, N1), N is N1+X.
 
+/*Get the current year*/
 current_year(Y) :-
     get_time(T),
     stamp_date_time(T, date(Y, _, _, _, _, _, _, _, _), 'UTC').
 
+/*Convert months numeric to text*/
 month_text(M, MT) :-
-    M == 1, MT = 'January';
-    M == 2, MT = 'February';
-    M == 3, MT = 'March';
-    M == 4, MT = 'April';
+    M == 1, MT = 'Jan';
+    M == 2, MT = 'Feb';
+    M == 3, MT = 'Mar';
+    M == 4, MT = 'Apr';
     M == 5, MT = 'May';
-    M == 6, MT = 'June';
-    M == 7, MT = 'July';
-    M == 8, MT = 'August';
-    M == 9, MT = 'September';
-    M == 10, MT = 'October';
-    M == 11, MT = 'November';
-    M == 12, MT = 'December'.
+    M == 6, MT = 'Jun';
+    M == 7, MT = 'Jul';
+    M == 8, MT = 'Aug';
+    M == 9, MT = 'Sept';
+    M == 10, MT = 'Oct';
+    M == 11, MT = 'Nov';
+    M == 12, MT = 'Dec'.
 
+/*Write the consumptions of all clients*/
 clients_consumption() :-
     consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
     write('Client Id:'), write(A),
@@ -170,36 +167,49 @@ clients_consumption() :-
     write(' Month:'), write(G),
     write(' Year:'), write(H), nl, fail.
 
+/*Write the consumptions of one client in one year*/
+client_consumption(A, H) :-
+    consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
+    write('Client Id:'), write(A),
+    write(' Name:'), write(B),
+    write(' Address:'), write(C),
+    write(' Number of Persons:'), write(D),
+    write(' CubicMeters (0 to 5):'), write(E),
+    write(' CubicMeters (6 to 15):'), write(F),
+    write(' Month:'), write(G),
+    write(' Year:'), write(H), nl, fail.
+
+/*Write the invoices of all clients*/
 clients_invoice() :-
     invoice(idclient(A), water_bill(B), month(C), year(D)),
     write('Client Id:'), write(A),
-    write(' Name:'), write(B),
+    write(' Water bill:'), write(B),
     write(' Month:'), write(C),
     write(' Year:'), write(D), nl, fail.
 
-write_monthly_payment(WaterBill, Months) :-
+/*Create the Graph with payment of a client*/
+write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
     tell('Graph.txt'),
     write('Digraph {\n'),
-    /*write('\t"'), write(IdClient), write('"'),*/
+    write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
+    write('  graph[fontsize=20, label="Monthly Payment of '), write(Year),
+    write('\\nId: '), write(IdClient), write(', Client: '), write(Name), write('"];\n'),
     draw_list_months(Months, WaterBill),
     write('}'),
     told.
 
+/*Draw list of monthy payment of all months*/
 draw_list_months([], []).
 draw_list_months([A|B], [C|D]) :-
     draw_months(A, C),
-    /*draw_payment(C),*/
     draw_list_months(B, D).
 
-draw_payment(WaterBill) :-
-    write(WaterBill), write(' cubicmeters"\n').
-
+/*Draw the payment of one month*/
 draw_months(Months, S) :-
     month_text(Months, MonthText),
-    Size is (S*0.1),
-    write('  '), write(MonthText), write('[label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='), write(Size), write(', height='), write(Size), write(']\n'),
-    write('  '), write(MonthText), write(' -> '), write(Months), nl.
-
+    Size is (S*0.2),
+    write('  '), write(Months), write('[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='), write(Size), write(', height='), write(Size), write('];\n'),
+   write('  '), write(Months), write(' -> "'), write(MonthText), write(' - '), write(S), write('€";\n').
 
 /*Insert the consumption of one client in one month*/
 insert_consumption :-
@@ -215,13 +225,21 @@ insert_consumption :-
 
 /*Create the invoice of a client*/
 create_invoice_latex() :-
-    create_invoice().
+    write('Id of client:'), read(IdClient),
+    write('Month:'), read(Month),
+    write('Year:'), read(Year),
+    consumption(idclient(A), name(B), address(C), npersons(D), cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
+    A=IdClient, G=Month, H=Year,
+    SFT is (D*1.5), C0_5T is (0.5*E), C6_15T is (1.0*F),
+    WaterBill is (SFT+C0_5T+C6_15T),
+    assert(invoice(idclient(A), water_bill(WaterBill), month(G), year(H))),
+    latex_file(A, B, C, D, SFT, E, C0_5T, F, C6_15T, WaterBill, G, H).
 
 /*Calculate the average consumption for one client in one year*/
 calculate_average() :-
     write('Id of Client:'), read(IdClient),
     write('Year:'), read(Year),
-    nl, not(clients_consumption()), nl,
+    nl, not(client_consumption(IdClient, Year)), nl,
     findall(W0_5, (consumption(idclient(C), _, _, _, cubicmeters0_5(W0_5), _, _, year(Y)), C=IdClient, Y=Year), S0),
     findall(W6_15, (consumption(idclient(C), _, _, _, _, cubicmeters6_15(W6_15), _, year(Y)), C=IdClient, Y=Year), S1),
     sum_up(S0, W0_5), sum_up(S1, W6_15), WaterTotal is (W0_5+W6_15),
@@ -251,7 +269,15 @@ graph_payment() :-
     write('Year:'), read(Year),
     findall(T0, (invoice(idclient(A), water_bill(T0), _, year(B)), A=IdClient, B=Year), S0),
     findall(T1, (invoice(idclient(A), _, month(T1), year(B)), A=IdClient, B=Year), S1),
-    write_monthly_payment(S0, S1).
+    consumption(idclient(IdClient), name(Name), _, _, _, _, _, _),
+    write_monthly_payment(S0, S1, Year, IdClient, Name).
+
+/*Save*/
+save :-
+    tell('WaterConsumptionInvoices.txt'),
+    listing,
+    told.
+
 
 /*Start the program*/
 start :- menu.
@@ -279,9 +305,3 @@ choice(A) :-
     A==5, over_5cubicmeters(), nl, menu;
     A==6, graph_payment(), nl, menu;
     A==0, save).
-
-/*Save*/
-save :-
-    tell('WaterConsumptionInvoices.txt'),
-    listing,
-    told.
