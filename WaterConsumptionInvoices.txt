@@ -489,6 +489,9 @@ consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cub
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.8), cubicmeters6_15(0), month(10), year(2018)).
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.7), cubicmeters6_15(0), month(11), year(2018)).
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.2), month(12), year(2018)).
+consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(2), year(2018)).
+consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3.1), month(1), year(2018)).
+consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(4.8), cubicmeters6_15(0), month(3), year(2018)).
 
 :- multifile prolog_clause_name/2.
 
@@ -577,6 +580,9 @@ invoice(idclient(1100), water_bill(5.7), month(9), year(2018)).
 invoice(idclient(1100), water_bill(5.4), month(10), year(2018)).
 invoice(idclient(1100), water_bill(5.35), month(11), year(2018)).
 invoice(idclient(1100), water_bill(6.7), month(12), year(2018)).
+invoice(idclient(1200), water_bill(6.5), month(2), year(2018)).
+invoice(idclient(1200), water_bill(8.6), month(1), year(2018)).
+invoice(idclient(1200), water_bill(5.4), month(3), year(2018)).
 
 over_5cubicmeters :-
     current_year(A),

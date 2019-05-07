@@ -2,6 +2,7 @@
 :- dynamic invoice/4.
 
 /*Some information for test*/
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.3), month(1), year(2018)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
@@ -27,6 +28,7 @@ consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cub
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.7), cubicmeters6_15(0), month(11), year(2018)).
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.2), month(12), year(2018)).
 
+invoice(idclient(1000), water_bill(6.8), month(1), year(2018)).
 invoice(idclient(1000), water_bill(3), month(1), year(2019)).
 invoice(idclient(1000), water_bill(3.5), month(2), year(2019)).
 invoice(idclient(1000), water_bill(6.5), month(3), year(2019)).
@@ -210,7 +212,8 @@ write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
     write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
     write('  graph[fontsize=20, label="Monthly Payment of '), write(Year),
     write('\\nId: '), write(IdClient), write(', Client: '), write(Name), write('"];\n'),
-    draw_list_months(Months, WaterBill),
+    sort(Months, MonthsSorted), sort(WaterBill, WaterBillSorted),
+    draw_list_months(MonthsSorted, WaterBillSorted),
     write('}'),
     told.
 

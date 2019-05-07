@@ -212,6 +212,7 @@ write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
     write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
     write('  graph[fontsize=20, label="Monthly Payment of '), write(Year),
     write('\\nId: '), write(IdClient), write(', Client: '), write(Name), write('"];\n'),
+    /*sort(Months, MonthsSorted), sort(WaterBill, WaterBillSorted),*/
     draw_list_months(Months, WaterBill),
     write('}'),
     told.
