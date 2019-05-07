@@ -2,6 +2,7 @@
 :- dynamic invoice/4.
 
 /*Some information for test*/
+consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.3), month(1), year(2018)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(1), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(2), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2019)).
@@ -14,7 +15,20 @@ consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicm
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(3), cubicmeters6_15(0), month(10), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(1), cubicmeters0_5(5), cubicmeters6_15(1), month(11), year(2019)).
 consumption(idclient(1000), name('John'), address('Lisbon'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3), month(12), year(2019)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(1), cubicmeters0_5(1.6), cubicmeters6_15(0), month(1), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(1), cubicmeters0_5(2), cubicmeters6_15(0), month(2), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(1), cubicmeters0_5(3.4), cubicmeters6_15(0), month(3), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(1), cubicmeters0_5(1.8), cubicmeters6_15(0), month(4), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.9), cubicmeters6_15(0), month(5), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.2), month(6), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(3.8), cubicmeters6_15(0), month(7), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(1), cubicmeters0_5(1.7), cubicmeters6_15(0), month(8), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(0.2), month(9), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.8), cubicmeters6_15(0), month(10), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.7), cubicmeters6_15(0), month(11), year(2018)).
+consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.2), month(12), year(2018)).
 
+invoice(idclient(1000), water_bill(6.8), month(1), year(2018)).
 invoice(idclient(1000), water_bill(3), month(1), year(2019)).
 invoice(idclient(1000), water_bill(3.5), month(2), year(2019)).
 invoice(idclient(1000), water_bill(6.5), month(3), year(2019)).
@@ -27,6 +41,18 @@ invoice(idclient(1000), water_bill(2.5), month(9), year(2019)).
 invoice(idclient(1000), water_bill(3), month(10), year(2019)).
 invoice(idclient(1000), water_bill(5), month(11), year(2019)).
 invoice(idclient(1000), water_bill(8.5), month(12), year(2019)).
+invoice(idclient(1100), water_bill(2.3), month(1), year(2018)).
+invoice(idclient(1100), water_bill(2.5), month(2), year(2018)).
+invoice(idclient(1100), water_bill(3.2), month(3), year(2018)).
+invoice(idclient(1100), water_bill(2.4), month(4), year(2018)).
+invoice(idclient(1100), water_bill(5.45), month(5), year(2018)).
+invoice(idclient(1100), water_bill(6.7), month(6), year(2018)).
+invoice(idclient(1100), water_bill(4.9), month(7), year(2018)).
+invoice(idclient(1100), water_bill(2.35), month(8), year(2018)).
+invoice(idclient(1100), water_bill(5.7), month(9), year(2018)).
+invoice(idclient(1100), water_bill(5.4), month(10), year(2018)).
+invoice(idclient(1100), water_bill(5.35), month(11), year(2018)).
+invoice(idclient(1100), water_bill(6.7), month(12), year(2018)).
 
 
 /*Auxiliary*/
@@ -159,25 +185,25 @@ month_text(M, MT) :-
 clients_consumption(H) :-
     consumption(idclient(A), name(B), _, _, _, cubicmeters6_15(F), month(G), year(H)),
     month_text(G, MT),
-    write('\n   '), write(MT),
-    write('   Client Id:'), write(A),
-    write('   Name:'), write(B),
-    write('   [6,15]M³:'), write(F), fail.
+    write('\n\t'), write(MT),
+    write('\tClient Id:'), write(A),
+    write('\tName:'), write(B),
+    write('\t[6,15]M³:'), write(F), fail.
 
 /*Write the consumptions of one client in one year*/
 client_consumption(A, H) :-
     consumption(idclient(A), _, _, _, cubicmeters0_5(E), cubicmeters6_15(F), month(G), year(H)),
     month_text(G, MT),
-    write('\n   '), write(MT),
-    write('   [0,5]M³:'), write(E),
-    write('   [6,15]M³:'), write(F), fail.
+    write('\n\t'), write(MT),
+    write('\t[0,5]M³:'), write(E),
+    write('\t[6,15]M³:'), write(F), fail.
 
 /*Write the invoices of one client in one year*/
 client_invoice(A, D) :-
     invoice(idclient(A), water_bill(B), month(C), year(D)),
     month_text(C, MT),
-    write('\n   '), write(MT),
-    write('   '), write(B), write('€'), fail.
+    write('\n\t'), write(MT),
+    write('\t'), write(B), write('€'), fail.
 
 /*Create the Graph with payment of a client*/
 write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
