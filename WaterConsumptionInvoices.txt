@@ -1,4 +1,99 @@
 
+calculate_average :-
+    write('Id of Client:'),
+    read(A),
+    write('Year:'),
+    read(B),
+    consumption(idclient(A),
+                name(C),
+                _,
+                _,
+                _,
+                _,
+                _,
+                _),
+    write('\n\tWater Consumption of '),
+    write(B),
+    write(', '),
+    write(C),
+    write('\n---------------------------------------------------------------------\n'),
+    write('\tMonth\t[0,5]m³\t[6,15]m³\n'),
+    client_consumption(A, B),
+    write('\n---------------------------------------------------------------------\n'),
+    findall(D,
+            ( consumption(idclient(E),
+                          _,
+                          _,
+                          _,
+                          cubicmeters0_5(D),
+                          _,
+                          _,
+                          year(F)),
+              E=A,
+              F=B
+            ),
+            H),
+    findall(G,
+            ( consumption(idclient(E),
+                          _,
+                          _,
+                          _,
+                          _,
+                          cubicmeters6_15(G),
+                          _,
+                          year(F)),
+              E=A,
+              F=B
+            ),
+            I),
+    sum_up(H, D),
+    sum_up(I, G),
+    J is D+G,
+    K is J/12,
+    write('\tWater Average: '),
+    write(K).
+
+write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
+    tell('Graph.txt'),
+    write('Digraph {\n'),
+    write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
+    write('  graph[fontsize=20, label="Monthly Payment of '),
+    write(Year),
+    write('\\nId: '),
+    write(IdClient),
+    write(', Client: '),
+    write(Name),
+    write('"];\n'),
+    draw_list_months(Months, WaterBill),
+    write('}'),
+    told.
+
+menu :-
+    write('\n---------------------------------------------------------------------\n'),
+    write('-- 1. Insert the consumption of one client in one month            --\n'),
+    write('-- 2. Create the invoice of a client in Latex                      --\n'),
+    write('-- 3. Average consumption for one client in one year               --\n'),
+    write('-- 4. Total payment for one client at the end of one year          --\n'),
+    write('-- 5. Total of over 5 cubicmeters of all clients in the last year  --\n'),
+    write('-- 6. Graph of a monthly payment of a client during one year       --\n'),
+    write('-- 0. Exit and save                                                --\n'),
+    write('---------------------------------------------------------------------\n\n'),
+    read(A),
+    choice(A).
+
+:- multifile prolog_predicate_name/2.
+
+prolog_predicate_name(pce_principal:send_implementation(Id0, _, _), Id) :-
+    pce_portray:
+    (   method_from_id(Id0, SG),
+        atom_from_method(SG, Id)
+    ).
+prolog_predicate_name(pce_principal:get_implementation(Id0, _, _, _), Id) :-
+    pce_portray:
+    (   method_from_id(Id0, SG),
+        atom_from_method(SG, Id)
+    ).
+
 create_invoice_latex :-
     write('Id of client:'),
     read(B),
@@ -38,152 +133,34 @@ create_invoice_latex :-
                C,
                E).
 
-month_text(M, MT) :-
-    (   M==1,
-        MT='Jan'
-    ;   M==2,
-        MT='Feb'
-    ;   M==3,
-        MT='Mar'
-    ;   M==4,
-        MT='Apr'
-    ;   M==5,
-        MT='May'
-    ;   M==6,
-        MT='Jun'
-    ;   M==7,
-        MT='Jul'
-    ;   M==8,
-        MT='Aug'
-    ;   M==9,
-        MT='Sep'
-    ;   M==10,
-        MT='Oct'
-    ;   M==11,
-        MT='Nov'
-    ;   M==12,
-        MT='Dec'
-    ).
+client_invoice(A, D) :-
+    solutions(C-[A, B, C, D],
+              invoice(idclient(A),
+                      water_bill(B),
+                      month(C),
+                      year(D)),
+              List1),
+    keysort(List1, List2),
+    pairs_values(List2, List3),
+    print_listC(List3).
 
-write_monthly_payment(WaterBill, Months, Year, IdClient, Name) :-
-    tell('Graph.txt'),
-    write('Digraph {\n'),
-    write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
-    write('  graph[fontsize=20, label="Monthly Payment of '),
-    write(Year),
-    write('\\nId: '),
-    write(IdClient),
-    write(', Client: '),
-    write(Name),
-    write('"];\n'),
-    draw_list_months(Months, WaterBill),
-    write('}'),
-    told.
-
-menu :-
-    write('\n---------------------------------------------------------------------\n'),
-    write('-- 1. Insert the consumption of one client in one month            --\n'),
-    write('-- 2. Create the invoice of a client in Latex                      --\n'),
-    write('-- 3. Average consumption for one client in one year               --\n'),
-    write('-- 4. Total payment for one client at the end of one year          --\n'),
-    write('-- 5. Total of over 5 cubicmeters of all clients in the last year  --\n'),
-    write('-- 6. Graph of a monthly payment of a client during one year       --\n'),
-    write('-- 0. Exit and save                                                --\n'),
-    write('---------------------------------------------------------------------\n\n'),
-    read(A),
-    choice(A).
-
-calculate_average :-
-    write('Id of Client:'),
-    read(A),
-    write('Year:'),
-    read(B),
-    consumption(idclient(A),
-                name(C),
-                _,
-                _,
-                _,
-                _,
-                _,
-                _),
-    write('\n\tWater Consumption of '),
-    write(B),
-    write(', '),
-    write(C),
-    write('\n---------------------------------------------------------------------'),
-    not(client_consumption(A, B)),
-    write('\n---------------------------------------------------------------------\n'),
-    findall(D,
-            ( consumption(idclient(E),
+clients_consumption(H) :-
+    solutions(G-[A, B, F, G, H],
+              consumption(idclient(A),
+                          name(B),
                           _,
                           _,
                           _,
-                          cubicmeters0_5(D),
-                          _,
-                          _,
-                          year(F)),
-              E=A,
-              F=B
-            ),
-            H),
-    findall(G,
-            ( consumption(idclient(E),
-                          _,
-                          _,
-                          _,
-                          _,
-                          cubicmeters6_15(G),
-                          _,
-                          year(F)),
-              E=A,
-              F=B
-            ),
-            I),
-    sum_up(H, D),
-    sum_up(I, G),
-    J is D+G,
-    K is J/12,
-    write('\tWater Average: '),
-    write(K).
+                          cubicmeters6_15(F),
+                          month(G),
+                          year(H)),
+              List1),
+    keysort(List1, List2),
+    pairs_values(List2, List3),
+    print_listA(List3).
 
 start :-
     menu.
-
-:- multifile prolog_predicate_name/2.
-
-prolog_predicate_name(pce_principal:send_implementation(Id0, _, _), Id) :-
-    pce_portray:
-    (   method_from_id(Id0, SG),
-        atom_from_method(SG, Id)
-    ).
-prolog_predicate_name(pce_principal:get_implementation(Id0, _, _, _), Id) :-
-    pce_portray:
-    (   method_from_id(Id0, SG),
-        atom_from_method(SG, Id)
-    ).
-
-draw_months(Months, S) :-
-    month_text(Months, MonthText),
-    Size is S*0.2,
-    write('  '),
-    write(Months),
-    write('[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='),
-    write(Size),
-    write(', height='),
-    write(Size),
-    write('];\n'),
-    write('  '),
-    write(Months),
-    write(' -> "'),
-    write(MonthText),
-    write(' - '),
-    write(S),
-    write('€";\n').
-
-sum_up([], 0).
-sum_up([X|Y], N) :-
-    sum_up(Y, N1),
-    N is N1+X.
 
 insert_consumption :-
     write('Client Id:'),
@@ -212,144 +189,17 @@ insert_consumption :-
                        month(G),
                        year(H))).
 
-:- dynamic pce_pre_expansion_hook/2.
-:- multifile pce_pre_expansion_hook/2.
-
-pce_pre_expansion_hook(In, Out) :-
-    emacs_extend:emacs_expansion(In, Out).
-
-latex_file(A, B, C, D, E, F, G, H, I, J, K, L) :-
-    tell('WaterInvoice.txt'),
-    write('\\newcommand{\\clientId}{'),
-    write(A),
-    write('}\n'),
-    write('\\newcommand{\\toname}{'),
-    write(B),
-    write('}\n'),
-    write('\\newcommand{\\toaddress}{'),
-    write(C),
-    write('}\n'),
-    write('\\newcommand{\\sanitationfeeQuantity}{'),
-    write(D),
-    write('}\n'),
-    write('\\newcommand{\\sanitationfeeTotal}{'),
-    write(E),
-    write('}\n'),
-    write('\\newcommand{\\cubicmetersZeroQuantity}{'),
-    write(F),
-    write('}\n'),
-    write('\\newcommand{\\cubicmetersZeroTotal}{'),
-    write(G),
-    write('}\n'),
-    write('\\newcommand{\\cubicmetersSixQuantity}{'),
-    write(H),
-    write('}\n'),
-    write('\\newcommand{\\cubicmetersSixTotal}{'),
-    write(I),
-    write('}\n'),
-    write('\\newcommand{\\waterBill}{'),
-    write(J),
-    write('}\n'),
-    write('\\newcommand{\\clientmonth}{'),
-    write(K),
-    write('}\n'),
-    write('\\newcommand{\\clientyear}{'),
-    write(L),
-    write('}\n'),
-    static_text_latex,
-    told.
-
-choice(A) :-
-    (   A==1,
-        insert_consumption,
-        nl,
-        menu
-    ;   A==2,
-        create_invoice_latex,
-        nl,
-        menu
-    ;   A==3,
-        calculate_average,
-        nl,
-        menu
-    ;   A==4,
-        calculate_total,
-        nl,
-        menu
-    ;   A==5,
-        over_5cubicmeters,
-        nl,
-        menu
-    ;   A==6,
-        graph_payment,
-        nl,
-        menu
-    ;   A==0,
-        save
-    ).
-
-graph_payment :-
-    write('Id of client:'),
-    read(C),
-    write('Year:'),
-    read(E),
-    findall(A,
-            ( invoice(idclient(B),
-                      water_bill(A),
-                      _,
-                      year(D)),
-              B=C,
-              D=E
-            ),
-            G),
-    findall(F,
-            ( invoice(idclient(B), _, month(F), year(D)),
-              B=C,
-              D=E
-            ),
-            H),
-    consumption(idclient(C),
-                name(I),
-                _,
-                _,
-                _,
-                _,
-                _,
-                _),
-    write_monthly_payment(G, H, E, C, I).
-
-:- dynamic prolog_exception_hook/4.
-:- multifile prolog_exception_hook/4.
-
-prolog_exception_hook(error(E, context(Ctx0, Msg)), error(E, context(prolog_stack(Stack), Msg)), Fr, GuardSpec) :-
-    prolog_stack:
-    (   current_prolog_flag(backtrace, true),
-        \+ is_stack(Ctx0, _Frames),
-        (   atom(GuardSpec)
-        ->  debug(backtrace,
-                  'Got uncaught (guard = ~q) exception ~p (Ctx0=~p)',
-                  [GuardSpec, E, Ctx0]),
-            stack_guard(GuardSpec),
-            Guard=GuardSpec
-        ;   prolog_frame_attribute(GuardSpec,
-                                   predicate_indicator,
-                                   Guard),
-            debug(backtrace,
-                  'Got exception ~p (Ctx0=~p, Catcher=~p)',
-                  [E, Ctx0, Guard]),
-            stack_guard(Guard)
-        ),
-        (   current_prolog_flag(backtrace_depth, Depth)
-        ->  Depth>0
-        ;   Depth=20
-        ),
-        get_prolog_backtrace(Depth,
-                             Stack0,
-                             [frame(Fr), guard(Guard)]),
-        debug(backtrace, 'Stack = ~p', [Stack0]),
-        clean_stack(Stack0, Stack1),
-        join_stacks(Ctx0, Stack1, Stack)
-    ).
+print_listC([]).
+print_listC([A|B]) :-
+    nth0(2, A, Month),
+    month_text(Month, MT),
+    write('\n\t'),
+    write(MT),
+    nth0(1, A, WaterBill),
+    write('\t'),
+    write(WaterBill),
+    write(€),
+    print_listC(B).
 
 static_text_latex :-
     write('\n\\documentclass{scrlttr2}\n\n'),
@@ -412,24 +262,123 @@ static_text_latex :-
     write('@\\multicolumn{1}{l}{Total}       \\\\\n'),
     write('\\midrule\n'),
     write('@Sanitation fee                                     &\n'),
-    write(':={1.50}\\,€ & \\sanitationfeeQuantity & :=\\sanitationfeeTotal\\,€ \\\\ \n'),
+    write(':={1.50}\\, & \\sanitationfeeQuantity & :=\\sanitationfeeTotal\\, \\\\ \n'),
     write('@CubicMeters (0 to 5):&\n'),
-    write(':={0.50}\\,€ & \\cubicmetersZeroQuantity & :=\\cubicmetersZeroTotal\\,€ \\\\ \n'),
+    write(':={0.50}\\, & \\cubicmetersZeroQuantity & :=\\cubicmetersZeroTotal\\, \\\\ \n'),
     write('@CubicMeters (6 to 15):&\n'),
-    write(':={1.00}\\,€ & \\cubicmetersSixQuantity & :=\\cubicmetersSixTotal\\,€ \\\\ \n'),
+    write(':={1.00}\\, & \\cubicmetersSixQuantity & :=\\cubicmetersSixTotal\\, \\\\ \n'),
     write('\\midrule \\midrule\n'),
-    write('\\multicolumn{4}{r}{Total :=\\waterBill\\,€}\\\\ \n'),
+    write('\\multicolumn{4}{r}{Total :=\\waterBill\\,}\\\\ \n'),
     write('\\bottomrule\n'),
     write('\\end{spreadtab}\n'),
     write('\\closing{}\n'),
     write('\\end{letter}\n'),
     write('\\end{document}').
 
-:- dynamic pce_post_expansion_hook/2.
-:- multifile pce_post_expansion_hook/2.
+draw_months(Months, S) :-
+    month_text(Months, MonthText),
+    Size is S*0.2,
+    write('  '),
+    write(Months),
+    write('[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='),
+    write(Size),
+    write(', height='),
+    write(Size),
+    write('];\n'),
+    write('  '),
+    write(Months),
+    write(' -> "'),
+    write(MonthText),
+    write(' - '),
+    write(S),
+    write('";\n').
 
+print_listD([]).
+print_listD([A|B]) :-
+    nth0(1, A, WaterBill),
+    Size is WaterBill*0.2,
+    nth0(2, A, Month),
+    month_text(Month, MT),
+    write('  '),
+    write(Month),
+    write('[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width='),
+    write(Size),
+    write(', height='),
+    write(Size),
+    write('];\n'),
+    write('  '),
+    write(Month),
+    write(' -> "'),
+    write(MT),
+    write(' - '),
+    write(WaterBill),
+    write('€";\n'),
+    print_listD(B).
 
-:- multifile url_path/2.
+client_consumption(A, H) :-
+    solutions(G-[A, E, F, G, H],
+              consumption(idclient(A),
+                          _,
+                          _,
+                          _,
+                          cubicmeters0_5(E),
+                          cubicmeters6_15(F),
+                          month(G),
+                          year(H)),
+              List1),
+    keysort(List1, List2),
+    pairs_values(List2, List3),
+    print_listB(List3).
+
+current_year(Y) :-
+    get_time(T),
+    stamp_date_time(T,
+                    date(Y,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _,
+                         _),
+                    'UTC').
+
+sum_up([], 0).
+sum_up([X|Y], N) :-
+    sum_up(Y, N1),
+    N is N1+X.
+
+choice(A) :-
+    (   A==1,
+        insert_consumption,
+        nl,
+        menu
+    ;   A==2,
+        create_invoice_latex,
+        nl,
+        menu
+    ;   A==3,
+        calculate_average,
+        nl,
+        menu
+    ;   A==4,
+        calculate_total,
+        nl,
+        menu
+    ;   A==5,
+        over_5cubicmeters,
+        nl,
+        menu
+    ;   A==6,
+        graph_payment,
+        nl,
+        menu
+    ;   A==0,
+        save
+    ).
+
+:- dynamic temp/2.
 
 
 save :-
@@ -437,30 +386,183 @@ save :-
     listing,
     told.
 
+print_listB([]).
+print_listB([A|B]) :-
+    nth0(3, A, Month),
+    month_text(Month, MT),
+    write('\n\t'),
+    write(MT),
+    nth0(1, A, Cubicmeters0_5),
+    write('\t'),
+    write(Cubicmeters0_5),
+    nth0(2, A, Cubicmeters6_15),
+    write('\t'),
+    write(Cubicmeters6_15),
+    print_listB(B).
+
+month_text(M, MT) :-
+    (   M==1,
+        MT='Jan'
+    ;   M==2,
+        MT='Feb'
+    ;   M==3,
+        MT='Mar'
+    ;   M==4,
+        MT='Apr'
+    ;   M==5,
+        MT='May'
+    ;   M==6,
+        MT='Jun'
+    ;   M==7,
+        MT='Jul'
+    ;   M==8,
+        MT='Aug'
+    ;   M==9,
+        MT='Sep'
+    ;   M==10,
+        MT='Oct'
+    ;   M==11,
+        MT='Nov'
+    ;   M==12,
+        MT='Dec'
+    ).
+
+:- dynamic pce_pre_expansion_hook/2.
+:- multifile pce_pre_expansion_hook/2.
+
+pce_pre_expansion_hook(In, Out) :-
+    emacs_extend:emacs_expansion(In, Out).
+
+solutions(B, A, _) :-
+    call(A),
+    assert(temp(B)),
+    fail.
+solutions(_, _, A) :-
+    construct([], A).
+
+:- dynamic prolog_exception_hook/4.
+:- multifile prolog_exception_hook/4.
+
+prolog_exception_hook(error(E, context(Ctx0, Msg)), error(E, context(prolog_stack(Stack), Msg)), Fr, GuardSpec) :-
+    prolog_stack:
+    (   current_prolog_flag(backtrace, true),
+        \+ is_stack(Ctx0, _Frames),
+        (   atom(GuardSpec)
+        ->  debug(backtrace,
+                  'Got uncaught (guard = ~q) exception ~p (Ctx0=~p)',
+                  [GuardSpec, E, Ctx0]),
+            stack_guard(GuardSpec),
+            Guard=GuardSpec
+        ;   prolog_frame_attribute(GuardSpec,
+                                   predicate_indicator,
+                                   Guard),
+            debug(backtrace,
+                  'Got exception ~p (Ctx0=~p, Catcher=~p)',
+                  [E, Ctx0, Guard]),
+            stack_guard(Guard)
+        ),
+        (   current_prolog_flag(backtrace_depth, Depth)
+        ->  Depth>0
+        ;   Depth=20
+        ),
+        get_prolog_backtrace(Depth,
+                             Stack0,
+                             [frame(Fr), guard(Guard)]),
+        debug(backtrace, 'Stack = ~p', [Stack0]),
+        clean_stack(Stack0, Stack1),
+        join_stacks(Ctx0, Stack1, Stack)
+    ).
+
+:- multifile url_path/2.
+
+
+graph_payment :-
+    write('Id of client:'),
+    read(A),
+    write('Year:'),
+    read(C),
+    consumption(idclient(A),
+                name(G),
+                _,
+                _,
+                _,
+                _,
+                _,
+                _),
+    solutions(B-[A, D, B, C],
+              invoice(idclient(A),
+                      water_bill(D),
+                      month(B),
+                      year(C)),
+              E),
+    keysort(E, F),
+    pairs_values(F, H),
+    tell('Graph.txt'),
+    write('Digraph {\n'),
+    write('  labelloc="t";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n'),
+    write('  graph[fontsize=20, label="Monthly Payment of '),
+    write(C),
+    write('\\nId: '),
+    write(A),
+    write(', Client: '),
+    write(G),
+    write('"];\n'),
+    print_listD(H),
+    write('}'),
+    told.
+
+latex_file(A, B, C, D, E, F, G, H, I, J, K, L) :-
+    tell('WaterInvoice.txt'),
+    write('\\newcommand{\\clientId}{'),
+    write(A),
+    write('}\n'),
+    write('\\newcommand{\\toname}{'),
+    write(B),
+    write('}\n'),
+    write('\\newcommand{\\toaddress}{'),
+    write(C),
+    write('}\n'),
+    write('\\newcommand{\\sanitationfeeQuantity}{'),
+    write(D),
+    write('}\n'),
+    write('\\newcommand{\\sanitationfeeTotal}{'),
+    write(E),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersZeroQuantity}{'),
+    write(F),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersZeroTotal}{'),
+    write(G),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersSixQuantity}{'),
+    write(H),
+    write('}\n'),
+    write('\\newcommand{\\cubicmetersSixTotal}{'),
+    write(I),
+    write('}\n'),
+    write('\\newcommand{\\waterBill}{'),
+    write(J),
+    write('}\n'),
+    write('\\newcommand{\\clientmonth}{'),
+    write(K),
+    write('}\n'),
+    write('\\newcommand{\\clientyear}{'),
+    write(L),
+    write('}\n'),
+    static_text_latex,
+    told.
+
 draw_list_months([], []).
 draw_list_months([A|B], [C|D]) :-
     draw_months(A, C),
     draw_list_months(B, D).
 
-clients_consumption(H) :-
-    consumption(idclient(A),
-                name(B),
-                _,
-                _,
-                _,
-                cubicmeters6_15(F),
-                month(G),
-                year(H)),
-    month_text(G, MT),
-    write('\n\t'),
-    write(MT),
-    write('\tClient Id:'),
-    write(A),
-    write('\tName:'),
-    write(B),
-    write('\t[6,15]M³:'),
-    write(F),
-    fail.
+:- dynamic pce_post_expansion_hook/2.
+:- multifile pce_post_expansion_hook/2.
+
+
+:- dynamic temp/1.
+
 
 :- dynamic consumption/8.
 
@@ -489,9 +591,10 @@ consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cub
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.8), cubicmeters6_15(0), month(10), year(2018)).
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(4.7), cubicmeters6_15(0), month(11), year(2018)).
 consumption(idclient(1100), name('Steve'), address('New York'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1.2), month(12), year(2018)).
-consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(1), month(2), year(2018)).
-consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(5), cubicmeters6_15(3.1), month(1), year(2018)).
-consumption(idclient(1200), name('Susan'), address('London'), npersons(2), cubicmeters0_5(4.8), cubicmeters6_15(0), month(3), year(2018)).
+consumption(idclient(900), name('Anna'), address('Los Angeles'), npersons(4), cubicmeters0_5(5), cubicmeters6_15(1), month(3), year(2018)).
+consumption(idclient(900), name('Anna'), address('Los Angeles'), npersons(4), cubicmeters0_5(3), cubicmeters6_15(0), month(2), year(2018)).
+consumption(idclient(900), name('Anna'), address('Los Angeles'), npersons(4), cubicmeters0_5(2), cubicmeters6_15(0), month(1), year(2018)).
+consumption(idclient(700), name('Bill'), address('Madrid'), npersons(1), cubicmeters0_5(4), cubicmeters6_15(0), month(1), year(2018)).
 
 :- multifile prolog_clause_name/2.
 
@@ -500,6 +603,54 @@ prolog_clause_name(Ref, Name) :-
     (   clause(Head, _, Ref),
         user:prolog_predicate_name(Head, Name)
     ).
+
+over_5cubicmeters :-
+    current_year(A),
+    B is A+ -1,
+    write('\n\tOver 5 cubicmeters of '),
+    write(B),
+    write('\n---------------------------------------------------------------------\n'),
+    write('\tMonth\tId\tName\t[6,15]m³\n'),
+    clients_consumption(B),
+    write('\n---------------------------------------------------------------------\n'),
+    findall(C,
+            ( consumption(_,
+                          _,
+                          _,
+                          _,
+                          _,
+                          cubicmeters6_15(C),
+                          _,
+                          year(D)),
+              D=B
+            ),
+            E),
+    sum_up(E, F),
+    write('\tWater Total: '),
+    write(F),
+    write('m³').
+
+print_listA([]).
+print_listA([A|B]) :-
+    nth0(3, A, Month),
+    month_text(Month, MT),
+    write('\n\t'),
+    write(MT),
+    nth0(0, A, ClientId),
+    write('\t'),
+    write(ClientId),
+    nth0(1, A, Name),
+    write('\t'),
+    write(Name),
+    nth0(2, A, Cubicmeters6_15),
+    write('\t'),
+    write(Cubicmeters6_15),
+    print_listA(B).
+
+construct(B, C) :-
+    retract(temp(A)),
+    construct([A|B], C).
+construct(C, C).
 
 calculate_total :-
     write('Id of client:'),
@@ -518,8 +669,9 @@ calculate_total :-
     write(B),
     write(', '),
     write(C),
-    write('\n---------------------------------------------------------------------'),
-    not(client_invoice(A, B)),
+    write('\n---------------------------------------------------------------------\n'),
+    write('\tMonth\tWater Bill\n'),
+    client_invoice(A, B),
     write('\n---------------------------------------------------------------------\n'),
     findall(D,
             ( invoice(idclient(E),
@@ -534,24 +686,6 @@ calculate_total :-
     write('\tWater Bill: '),
     write(H),
     write(€).
-
-client_consumption(A, H) :-
-    consumption(idclient(A),
-                _,
-                _,
-                _,
-                cubicmeters0_5(E),
-                cubicmeters6_15(F),
-                month(G),
-                year(H)),
-    month_text(G, MT),
-    write('\n\t'),
-    write(MT),
-    write('\t[0,5]M³:'),
-    write(E),
-    write('\t[6,15]M³:'),
-    write(F),
-    fail.
 
 :- dynamic invoice/4.
 
@@ -580,63 +714,12 @@ invoice(idclient(1100), water_bill(5.7), month(9), year(2018)).
 invoice(idclient(1100), water_bill(5.4), month(10), year(2018)).
 invoice(idclient(1100), water_bill(5.35), month(11), year(2018)).
 invoice(idclient(1100), water_bill(6.7), month(12), year(2018)).
-invoice(idclient(1200), water_bill(6.5), month(2), year(2018)).
-invoice(idclient(1200), water_bill(8.6), month(1), year(2018)).
-invoice(idclient(1200), water_bill(5.4), month(3), year(2018)).
-
-over_5cubicmeters :-
-    current_year(A),
-    B is A+ -1,
-    write('\n\tOver 5 cubicmeters of '),
-    write(B),
-    write('\n---------------------------------------------------------------------'),
-    not(clients_consumption(B)),
-    write('\n---------------------------------------------------------------------\n'),
-    findall(C,
-            ( consumption(_,
-                          _,
-                          _,
-                          _,
-                          _,
-                          cubicmeters6_15(C),
-                          _,
-                          year(D)),
-              D=B
-            ),
-            E),
-    sum_up(E, F),
-    write('\tWater Total: '),
-    write(F),
-    write('M³').
+invoice(idclient(900), water_bill(9.5), month(3), year(2018)).
+invoice(idclient(900), water_bill(7.5), month(2), year(2018)).
+invoice(idclient(900), water_bill(7), month(1), year(2018)).
+invoice(idclient(700), water_bill(3.5), month(1), year(2018)).
 
 :- thread_local thread_message_hook/3.
 :- dynamic thread_message_hook/3.
 :- volatile thread_message_hook/3.
 
-
-client_invoice(A, D) :-
-    invoice(idclient(A),
-            water_bill(B),
-            month(C),
-            year(D)),
-    month_text(C, MT),
-    write('\n\t'),
-    write(MT),
-    write('\t'),
-    write(B),
-    write(€),
-    fail.
-
-current_year(Y) :-
-    get_time(T),
-    stamp_date_time(T,
-                    date(Y,
-                         _,
-                         _,
-                         _,
-                         _,
-                         _,
-                         _,
-                         _,
-                         _),
-                    'UTC').
