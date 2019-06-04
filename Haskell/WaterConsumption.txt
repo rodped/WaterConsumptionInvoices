@@ -1,1 +1,2 @@
-1000	Pedro	Bragança	1	4	0	1	2019
+1000	Pedro	Braganca	1	2.5	0	1	2019	
+1000	Pedro	Braganca	2	5	1.2	2	2019
