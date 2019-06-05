@@ -1,0 +1,13 @@
+Digraph {
+  labelloc="t";
+  node[shape=plaintext];
+  edge[arrowhead=none];
+  graph[fontsize=20, label="Monthly Payment of 2019\nId: 1000, Client: Pedro"];
+  1[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=0.55, height=0.55];
+  1 -> "1 - 2.75€";
+  2[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=1.34, height=1.34];
+  2 -> "2 - 6.7€";
+  3[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=0.7, height=0.7];
+  3 -> "3 - 3.5€";
+  1[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=0.55, height=0.55];
+  1 -> "1 - 2.75€";
