@@ -1,3 +1,7 @@
+import Data.Time.Clock
+import Data.Time.Calendar
+
+-- Types used in water consumption and invoice
 type Idclient = Int
 type Name = String
 type Address = String
@@ -8,24 +12,29 @@ type Month = Int
 type Year = Int
 type Water_bill = Float
 
+-- Types of water consumption and invoice
 type Consumption = (Idclient, Name, Address, Npersons, Cubicmeters0_5, Cubicmeters6_15, Month, Year)
 type Invoice = (Idclient, Water_bill, Month, Year)
 
+-- Types of water consumption list and invoice list
 type ListConsumption = [Consumption]
 type ListInvoice = [Invoice]
 
+-- Water consumption list and invoice list
 listConsumption :: ListConsumption
 listConsumption = []
 listInvoice :: ListInvoice
 listInvoice = []
 
+-- Generate list of water consumption and invoice
 gerListWaterConsumption :: [[String]] -> ListConsumption
 gerListWaterConsumption [] = []
-gerListWaterConsumption ([idclient, name, address, npersons, cubicmeters0_5, cubicmeters6_15, month, year]: xs) = (read(idclient)::Int, name, address, read(npersons)::Int, read(cubicmeters0_5)::Float, read(cubicmeters6_15)::Float, read(month)::Int, read(year)::Int): (gerListWaterConsumption xs)
+gerListWaterConsumption ([a,b,c,d,e,f,g,h]: xs) = (read(a)::Int, b, c, read(d)::Int, read(e)::Float, read(f)::Float, read(g)::Int, read(h)::Int): (gerListWaterConsumption xs)
 gerListWaterInvoice :: [[String]] -> ListInvoice
 gerListWaterInvoice [] = []
-gerListWaterInvoice ([idclient, water_bill, month, year]: xs) = (read(idclient)::Int, read(water_bill)::Float, read(month)::Int, read(year)::Int): (gerListWaterInvoice xs)
+gerListWaterInvoice ([a,b,c,d]: xs) = (read(a)::Int, read(b)::Float, read(c)::Int, read(d)::Int): (gerListWaterInvoice xs)
 
+-- Load water consumption and invoice
 loadWaterConsumption :: IO ListConsumption
 loadWaterConsumption = do s <- readFile "WaterConsumption.txt" 
                           return (gerListWaterConsumption (map words (lines s)))
@@ -33,6 +42,19 @@ loadWaterInvoice :: IO ListInvoice
 loadWaterInvoice = do s <- readFile "WaterInvoice.txt" 
                       return (gerListWaterInvoice (map words (lines s)))
 
+-- Sort list of water comsumption and invoice by id of client
+sortConsumptionsId [] = []
+sortConsumptionsId ((a,b,c,d,e,f,g,h):xs) = insertConsumptionsId (a,b,c,d,e,f,g,h) (sortConsumptionsId xs)
+insertConsumptionsId (a,b,c,d,e,f,g,h) [] = [(a,b,c,d,e,f,g,h)]
+insertConsumptionsId (a,b,c,d,e,f,g,h) ((a1,b1,c1,d1,e1,f1,g1,h1):ys) = if a<a1 then (a,b,c,d,e,f,g,h):(a1,b1,c1,d1,e1,f1,g1,h1):ys
+                                                                              else (a1,b1,c1,d1,e1,f1,g1,h1):(insertConsumptionsId (a,b,c,d,e,f,g,h) ys)
+sortInvoicesId [] = []
+sortInvoicesId ((a,b,c,d):xs) = insertInvoicesId (a,b,c,d) (sortInvoicesId xs)
+insertInvoicesId (a,b,c,d) [] = [(a,b,c,d)]
+insertInvoicesId (a,b,c,d) ((a1,b1,c1,d1):ys) = if a<a1 then (a,b,c,d):(a1,b1,c1,d1):ys
+                                                      else (a1,b1,c1,d1):(insertInvoicesId (a,b,c,d) ys)
+
+-- Sort list of water comsumption and invoice by month
 sortConsumptions [] = []
 sortConsumptions ((a,b,c,d,e,f,g,h):xs) = insertConsumptions (a,b,c,d,e,f,g,h) (sortConsumptions xs)
 insertConsumptions (a,b,c,d,e,f,g,h) [] = [(a,b,c,d,e,f,g,h)]
@@ -44,25 +66,50 @@ insertInvoices (a,b,c,d) [] = [(a,b,c,d)]
 insertInvoices (a,b,c,d) ((a1,b1,c1,d1):ys) = if c<c1 then (a,b,c,d):(a1,b1,c1,d1):ys
                                                       else (a1,b1,c1,d1):(insertInvoices (a,b,c,d) ys)
 
+-- Show lists of water consumption and invoice
 printListWaterConsumption [] = ""
-printListWaterConsumption ((idclient, name, address, npersons, cubicmeters0_5, cubicmeters6_15, month, year): xs) = 
-    show(idclient) ++ "\t" ++ name ++ "\t" ++ address ++ "\t" ++ show(npersons) ++ "\t" ++ show(cubicmeters0_5) ++ "\t" ++ 
-    show(cubicmeters6_15) ++ "\t" ++ show(month) ++ "\t" ++ show(year) ++ "\n" ++ (printListWaterConsumption xs)
+printListWaterConsumption ((idclient, name, address, npersons, cubicmeters0_5, cubicmeters6_15, month, year): xs) =
+    "[" ++ show(idclient) ++ "]\t\t" ++ name ++ "\t\t" ++ monthToText month ++ "\t\t" ++ show(year) ++ "\n" ++ (printListWaterConsumption xs)
 printListWaterInvoice [] = ""
-printListWaterInvoice ((idclient, water_bill, month, year): xs) = idclient ++ "\t" ++ water_bill ++ "\t" ++ month ++ "\t" ++ year ++ "\n" ++ (printListWaterInvoice xs)
+printListWaterInvoice ((idclient, water_bill, month, year): xs) = 
+    "[" ++ show(idclient) ++ "]\t\t" ++ monthToText month ++ "\t\t" ++ show(year) ++ "\n" ++ (printListWaterInvoice xs)
 
--- Find a water consumption
-findWaterConsumption :: (Idclient, Month, Year) -> ListConsumption -> IO()
-findWaterConsumption (idclient, month, year) [] = error "ERROR" 
-findWaterConsumption (idclient, month, year) ((a, b, c, d, e, f, g, h): xs)
+-- Convert month numeric to text
+monthToText :: Month -> String
+monthToText month
+    | (month == 1) = "Jan"
+    | (month == 2) = "Fev"
+    | (month == 3) = "Mar"
+    | (month == 4) = "Apr"
+    | (month == 5) = "May"
+    | (month == 6) = "Jun"
+    | (month == 7) = "Jul"
+    | (month == 8) = "Aug"
+    | (month == 9) = "Sep"
+    | (month == 10) = "Oct"
+    | (month == 11) = "Nov"
+    | (month == 12) = "Dec"
+
+-- Find the name of a client by id
+findName :: (Idclient) -> ListConsumption -> String
+findName (idclient) [] = "" 
+findName (idclient) ((a, b, c, d, e, f, g, h): xs)
+    | (idclient == a) = b
+    | otherwise = findName (idclient) xs
+
+-- Find a water consumption and create the invoice
+createInvoice :: (Idclient, Month, Year) -> ListConsumption -> IO()
+createInvoice (idclient, month, year) [] = error "ERROR" 
+createInvoice (idclient, month, year) ((a, b, c, d, e, f, g, h): xs)
     | (idclient == a && month == g && year == h) = do let sft = (1.5* (fromIntegral d))
                                                       let c0_5t = (0.5*e) 
                                                       let c6_15t = (1.0*f) 
                                                       let water_bill = (sft + c0_5t + c6_15t) 
                                                       insertInvoice idclient water_bill g h
                                                       latexFile a b c d sft e c0_5t f c6_15t water_bill g h
-    | otherwise = findWaterConsumption (idclient, month, year) xs
+    | otherwise = createInvoice (idclient, month, year) xs
 
+-- Insert invoice in listInvoice
 insertInvoice :: Idclient -> Water_bill -> Month -> Year -> IO()
 insertInvoice idclient water_bill month year = do appendFile "WaterInvoice.txt" (show(idclient) ++ "\t" ++ show(water_bill) ++ "\t" ++ show(month) ++ "\t" ++ show(year) ++ "\n")
 
@@ -162,44 +209,50 @@ latexFile a b c d sft e c0_5t f c6_15t water_bill g h = do writeFile "WaterInvoi
                                                             "\\end{letter}\n" ++ 
                                                             "\\end{document}")
 
--- findName :: (Idclient, Year) -> ListConsumption -> IO()
-findName (idclient, year) [] = "" 
-findName (idclient, year) ((a, b, c, d, e, f, g, h): xs)
-    | (idclient == a && year == h) = b
-    | otherwise = findName (idclient, year) xs
-
--- printListConsumptionYear :: (Idclient, Year) -> ListConsumption -> IO()
+-- Show the list of water consumption in a year
+printListConsumptionYear :: (Idclient, Year) -> ListConsumption -> String
 printListConsumptionYear (idclient, year) [] = "" 
 printListConsumptionYear (idclient, year) ((a, b, c, d, e, f, g, h): xs)
-    | (idclient == a && year == h) = "\t" ++ show(g) ++ "\t\t" ++ show(e) ++ "\t\t" ++ show(f) ++ "\n" ++ printListConsumptionYear (idclient, year) xs
+    | (idclient == a && year == h) = "\t" ++ monthToText g ++ "\t\t" ++ show(e) ++ "\t\t" ++ show(f) ++ "\n" ++ printListConsumptionYear (idclient, year) xs
     | otherwise = printListConsumptionYear (idclient, year) xs
 
+-- Total of a consumption of water in a year
+totalConsumptionYear :: (Idclient, Year) -> ListConsumption -> Float
 totalConsumptionYear (idclient, year) [] = 0
 totalConsumptionYear (idclient, year) ((a, b, c, d, e, f, g, h): xs)
     | (idclient == a && year == h) = e + f + totalConsumptionYear (idclient, year) xs
     | otherwise = totalConsumptionYear (idclient, year) xs
 
+-- Show the list of water bill in a year
+printListWaterBillYear :: (Idclient, Year) -> ListInvoice -> String
 printListWaterBillYear (idclient, year) [] = "" 
 printListWaterBillYear (idclient, year) ((a, b, c, d): xs)
-    | (idclient == a && year == d) = "\t" ++ show(c) ++ "\t\t" ++ show(b) ++ "€\n" ++ printListWaterBillYear (idclient, year) xs
+    | (idclient == a && year == d) = "\t" ++ monthToText c ++ "\t\t" ++ show(b) ++ "€\n" ++ printListWaterBillYear (idclient, year) xs
     | otherwise = printListWaterBillYear (idclient, year) xs
 
+-- Total of a water bill in a year
+totalWaterBillYear :: (Idclient, Year) -> ListInvoice -> Float
 totalWaterBillYear (idclient, year) [] = 0
 totalWaterBillYear (idclient, year) ((a, b, c, d): xs)
     | (idclient == a && year == d) = b + totalWaterBillYear (idclient, year) xs
     | otherwise = totalWaterBillYear (idclient, year) xs
 
+-- Show the list of water consumption over 5 cubicmeters in a year
+printListOver5CubicmetersYear :: (Year) -> ListConsumption -> String
 printListOver5CubicmetersYear (year) [] = "" 
 printListOver5CubicmetersYear (year) ((a, b, c, d, e, f, g, h): xs)
-    | (year == h) = "\t" ++ show(g) ++ "\t\t" ++ show(a) ++ "\t\t" ++ b ++ "\t\t" ++ show(f) ++ "\n" ++ printListOver5CubicmetersYear (year) xs
+    | (year == h) = "\t" ++ monthToText g ++ "\t\t" ++ show(a) ++ "\t\t" ++ b ++ "\t\t" ++ show(f) ++ "\n" ++ printListOver5CubicmetersYear (year) xs
     | otherwise = printListOver5CubicmetersYear (year) xs
 
+-- Total of water consumption over 5 cubicmeters in a year
+totalOver5CubicmetersYear :: (Year) -> ListConsumption -> Float
 totalOver5CubicmetersYear (year) [] = 0
 totalOver5CubicmetersYear (year) ((a, b, c, d, e, f, g, h): xs)
     | (year == h) = f + totalOver5CubicmetersYear (year) xs
     | otherwise = totalOver5CubicmetersYear (year) xs
 
-listWaterBillYear :: (Idclient, Month, Name) -> ListInvoice -> IO()
+-- Get the list of water bill for one client in a year and write a Dot file
+listWaterBillYear :: (Idclient, Year, Name) -> ListInvoice -> IO()
 listWaterBillYear (idclient, year, name) [] = error "ERROR" 
 listWaterBillYear (idclient, year, name) ((a, b, c, d): xs)
     | (idclient == a && year == d) = do writeFile "Graph.txt" (graph (idclient, name, year))                                        
@@ -207,22 +260,26 @@ listWaterBillYear (idclient, year, name) ((a, b, c, d): xs)
                                         appendFile "Graph.txt" ("}")                                      
     | otherwise = listWaterBillYear (idclient, year, name) xs
 
--- graph :: Idclient -> Water_bill -> Month -> Year -> IO()
+-- Write the graph
+graph :: (Idclient, Name, Year) -> String
 graph (idclient, name, year) = "Digraph {\n" ++ 
                                 "  labelloc=\"t\";\n  node[shape=plaintext];\n  edge[arrowhead=none];\n" ++ 
                                 "  graph[fontsize=20, label=\"Monthly Payment of " ++  
                                 show(year) ++ "\\nId: " ++ show(idclient) ++ ", Client: " ++ name ++ "\"];\n"
 
+-- Show the list of invoice in a year
+printListInvoiceYear :: (Idclient, Year) -> ListInvoice -> String
 printListInvoiceYear (idclient, year) [] = ""
 printListInvoiceYear (idclient, year) ((a, b, c, d): xs)
     | (idclient == a && year == d) = "  " ++ show(c) ++ 
                                      "[shape=circle, label=\"\", style=filled, color=\"#006699\", fillcolor=\"#cceeff\", fixedsize=true, width=" ++ 
                                      show(b*0.2) ++ ", height=" ++ show(b*0.2) ++ "];\n" ++ 
-                                     "  " ++ show(c) ++ " -> \"" ++ show(c) ++ " - " ++ show(b) ++ "€\";\n" ++
+                                     "  " ++ show(c) ++ " -> \"" ++ monthToText c ++ " - " ++ show(b) ++ " Eur\";\n" ++
                                      printListInvoiceYear (idclient, year) xs                                  
     | otherwise = printListInvoiceYear (idclient, year) xs
 
--- Insert the consumption of one client in one month
+
+-- Insert the consumption of one client in one month in listConsumption
 insertConsumption :: IO()
 insertConsumption = do putStr "\nClient Id: " 
                        idclient <- getLine
@@ -246,7 +303,7 @@ insertConsumption = do putStr "\nClient Id: "
                        if (op=="y" || op=="Y") then insertConsumption else return()
 
 
--- Create the invoice of a client
+-- Create the invoice of a client in latex and insert in listInvoice
 createInvoiceLatex :: ListConsumption -> IO()
 createInvoiceLatex listConsumption = do putStr "Id of client: "
                                         idclient <- getLine
@@ -254,7 +311,7 @@ createInvoiceLatex listConsumption = do putStr "Id of client: "
                                         month <- getLine
                                         putStr "Year: "
                                         year <- getLine                                         
-                                        findWaterConsumption (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption
+                                        createInvoice (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption
 
 -- Calculate the average consumption for one client in one year
 calculateAverage listConsumption = do putStr "Id of client: "
@@ -262,21 +319,21 @@ calculateAverage listConsumption = do putStr "Id of client: "
                                       putStr "Year: "
                                       year <- getLine 
                                       let listConsumptionSorted = sortConsumptions listConsumption
-                                      let name = findName (read(idclient)::Idclient, read(year)::Year) listConsumptionSorted
+                                      let name = findName (read(idclient)::Idclient) listConsumption
                                       putStr ("\n\tWater Consumption of " ++ year ++ ", " ++ name ++ 
                                             "\n---------------------------------------------------------------------\n" ++ 
                                             "\tMonth\t\t[0,5]m³\t[6,15]m³\n\n")
                                       putStr (printListConsumptionYear (read(idclient)::Idclient, read(year)::Year) listConsumptionSorted)
                                       putStr "---------------------------------------------------------------------\n\tWater Average: "
-                                      putStr (show (totalConsumptionYear (read(idclient)::Idclient, read(year)::Year) listConsumption/12))
+                                      putStr (show (totalConsumptionYear (read(idclient)::Idclient, read(year)::Year) listConsumption/12) ++ "m³")
 
--- 
+-- Calculate a water bill for one client in a year
 calculateTotal listConsumption listInvoice = do putStr "Id of client: "
                                                 idclient <- getLine
                                                 putStr "Year: "
                                                 year <- getLine
                                                 let listInvoiceSorted = sortInvoices listInvoice
-                                                let name = findName (read(idclient)::Idclient, read(year)::Year) listConsumption
+                                                let name = findName (read(idclient)::Idclient) listConsumption
                                                 putStr ("\n\tWater Bill of " ++ year ++ ", " ++ name ++ 
                                                         "\n---------------------------------------------------------------------\n" ++ 
                                                         "\tMonth\t\tWater Bill\n\n")
@@ -284,30 +341,32 @@ calculateTotal listConsumption listInvoice = do putStr "Id of client: "
                                                 putStr "---------------------------------------------------------------------\n\tWater Bill: "
                                                 putStr (show (totalWaterBillYear (read(idclient)::Idclient, read(year)::Year) listInvoice) ++ "€")
 
-over5cubicmeters listConsumption = do let lastYear = "2019"
+-- Total number of cubicmeters consummated over 5 cubicmeters of all clients in the last year
+over5cubicmeters listConsumption = do now <- getCurrentTime
+                                      let (year, month, day) = toGregorian $ utctDay now
+                                      let lastYear = year-1
                                       let listConsumptionSorted = sortConsumptions listConsumption
-                                      putStr ("\n\tOver 5 cubicmeters of " ++ lastYear ++ 
+                                      putStr ("\n\tOver 5 cubicmeters of " ++ show(lastYear) ++ 
                                               "\n---------------------------------------------------------------------\n" ++ 
                                               "\tMonth\t\tId\t\tName\t\t[6,15]m³\n\n")
-                                      putStr (printListOver5CubicmetersYear (read(lastYear)::Year) listConsumptionSorted)
+                                      putStr (printListOver5CubicmetersYear (read(show(lastYear))::Year) listConsumptionSorted)
                                       putStr "---------------------------------------------------------------------\n\tWater Total: "
-                                      putStr (show (totalOver5CubicmetersYear (read(lastYear)::Year) listConsumption) ++ "m³")
+                                      putStr (show (totalOver5CubicmetersYear (read(show(lastYear))::Year) listConsumption) ++ "m³")
 
+-- Generate a graph connecting the monthly payment of a client during one year
 graphPayment listConsumption listInvoice = do putStr "Id of client: "
                                               idclient <- getLine
                                               putStr "Year: "
                                               let listInvoiceSorted = sortInvoices listInvoice
                                               year <- getLine
-                                              let name = findName (read(idclient)::Idclient, read(year)::Year) listConsumption
+                                              let name = findName (read(idclient)::Idclient) listConsumption
                                               listWaterBillYear (read(idclient)::Idclient, read(year)::Year, name) listInvoiceSorted
 
 
 -- Start program and shows the menu
 main :: IO()
 main = do listConsumption <- loadWaterConsumption 
-          print listConsumption
           listInvoice <- loadWaterInvoice 
-          print listInvoice
           putStr "\n---------------------------------------------------------------------\n" 
           putStr "-- 1. Insert the consumption of one client in one month            --\n" 
           putStr "-- 2. Create the invoice of a client in Latex                      --\n" 
@@ -317,8 +376,15 @@ main = do listConsumption <- loadWaterConsumption
           putStr "-- 6. Graph of a monthly payment of a client during one year       --\n" 
           putStr "---------------------------------------------------------------------\n\n|: "
           op <- getLine 
-          if (op=="1") then do insertConsumption                                 
-          else if (op=="2") then do createInvoiceLatex listConsumption
+          if (op=="1") then do putStr "\t\tConsumptions registered for each client\n"
+                               putStr "---------------------------------------------------------------------\n"
+                               putStr(printListWaterConsumption (sortConsumptionsId listConsumption))
+                               insertConsumption                                
+          else if (op=="2") then do putStr "\t\tInvoices registered for each client\n"
+                                    putStr "---------------------------------------------------------------------\n"
+                                    putStr(printListWaterInvoice (sortInvoicesId listInvoice))
+                                    putStr "\n"
+                                    createInvoiceLatex listConsumption
           else if (op=="3") then do calculateAverage listConsumption
           else if (op=="4") then do calculateTotal listConsumption listInvoice
           else if (op=="5") then do over5cubicmeters listConsumption
