@@ -11,6 +11,8 @@ Digraph {
   3 -> "Mar - 5.35 Eur";
   4[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=1.82, height=1.82];
   4 -> "Apr - 9.1 Eur";
+  4[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=1.82, height=1.82];
+  4 -> "Apr - 9.1 Eur";
   5[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=1.36, height=1.36];
   5 -> "May - 6.8 Eur";
   6[shape=circle, label="", style=filled, color="#006699", fillcolor="#cceeff", fixedsize=true, width=1.3000001, height=1.3000001];
