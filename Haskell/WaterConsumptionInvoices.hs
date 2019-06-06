@@ -137,7 +137,7 @@ insertInvoice idclient water_bill month year = do appendFile "WaterInvoice.txt" 
 
 -- Create Latex file
 latexFile :: Idclient -> Name -> Address -> Npersons -> Float -> Float -> Float -> Float -> Float -> Float -> Month -> Year -> IO()
-latexFile a b c d sft e c0_5t f c6_15t water_bill g h = do writeFile "WaterInvoiceLatex.txt" ("\\newcommand{\\clientId}{" ++ show(a) ++ "}\n" ++ 
+latexFile a b c d sft e c0_5t f c6_15t water_bill g h = do writeFile "WaterInvoiceLatex.tex" ("\\newcommand{\\clientId}{" ++ show(a) ++ "}\n" ++ 
                                                             "\\newcommand{\\toname}{" ++ b ++ "}\n" ++ 
                                                             "\\newcommand{\\toaddress}{" ++ c ++ "}\n" ++ 
                                                             "\\newcommand{\\sanitationfeeQuantity}{" ++ show(d) ++ "}\n" ++ 
@@ -277,9 +277,9 @@ totalOver5CubicmetersYear (year) ((a, b, c, d, e, f, g, h): xs)
 listWaterBillYear :: (Idclient, Year, Name) -> ListInvoice -> IO()
 listWaterBillYear (idclient, year, name) [] = error "ERROR" 
 listWaterBillYear (idclient, year, name) ((a, b, c, d): xs)
-    | (idclient == a && year == d) = do writeFile "Graph.txt" (graph (idclient, name, year))                                        
-                                        appendFile "Graph.txt" (printListInvoiceYear (idclient, year) ((a, b, c, d): xs)) 
-                                        appendFile "Graph.txt" ("}")                                      
+    | (idclient == a && year == d) = do writeFile "Graph.dot" (graph (idclient, name, year))                                        
+                                        appendFile "Graph.dot" (printListInvoiceYear (idclient, year) ((a, b, c, d): xs)) 
+                                        appendFile "Graph.dot" ("}")                                      
     | otherwise = listWaterBillYear (idclient, year, name) xs
 
 -- Write the graph
