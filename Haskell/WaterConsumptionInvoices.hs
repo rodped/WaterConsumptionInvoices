@@ -116,24 +116,6 @@ validateInvoice (a, b, c, d)
     | (c<=0 || c>12) = False
     | (d<=0) = False 
     | otherwise = True
-   
-------------------------------------------------------------------------------
---                               Não funciona                               --
-------------------------------------------------------------------------------
-
--- Check if a register not exists in list of consumptions
-ifNotExistsConsumption :: (Idclient, Month, Year) -> ListConsumption -> Bool
-ifNotExistsConsumption (a0, g0, h0) [] = True
-ifNotExistsConsumption (a0, g0, h0) ((a, b, c, d, e, f, g, h): xs) =
-    if(a0==a && g0==g && h0==h) then False
-    else ifNotExistsConsumption (a0, g0, h0) xs
--- Check if a register not exists in list of invoices
-ifNotExistsInvoice :: (Idclient, Month, Year) -> ListInvoice -> Bool
-ifNotExistsInvoice (a0, g0, h0) [] = True
-ifNotExistsInvoice (a0, c0, d0) ((a, b, c, d): xs) = 
-    if(a0==a && c0==c && d0==d) then False
-    else ifNotExistsInvoice (a0, c0, d0) xs
-------------------------------------------------------------------------------
 
 -- Find a water consumption and create the invoice
 createInvoice :: (Idclient, Month, Year) -> ListConsumption -> IO()
@@ -337,13 +319,12 @@ insertConsumption = do putStr "\nClient Id (ex. 1000): "
                        month <- getLine
                        putStr "Year (ex. 2018): " 
                        year <- getLine
-                       {-let notExists = ifNotExistsConsumption (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption-}
                        let checkValues = validateConsumption (read(idclient)::Idclient, read(name)::Name, read(address)::Address, read(npersons)::Npersons, read(cubicmeters0_5)::Cubicmeters0_5, read(cubicmeters6_15)::Cubicmeters6_15, read(month)::Month, read(year)::Year)
-                       if({-notExists &&-} checkValues) then do appendFile "WaterConsumption.txt" (idclient ++ "\t" ++ name ++ "\t" ++ address ++ "\t" ++ npersons ++ "\t" ++ cubicmeters0_5 ++ "\t" ++ cubicmeters6_15 ++ "\t" ++ month ++ "\t" ++ year ++ "\n")
-                                                                putStr "Insert another one? (y/Y): " 
-                                                                op <- getLine
-                                                                if (op=="y" || op=="Y") then insertConsumption 
-                                                                else return()
+                       if(checkValues) then do appendFile "WaterConsumption.txt" (idclient ++ "\t" ++ name ++ "\t" ++ address ++ "\t" ++ npersons ++ "\t" ++ cubicmeters0_5 ++ "\t" ++ cubicmeters6_15 ++ "\t" ++ month ++ "\t" ++ year ++ "\n")
+                                               putStr "Insert another one? (y/Y): " 
+                                               op <- getLine
+                                               if (op=="y" || op=="Y") then insertConsumption 
+                                               else return()
                        else error "ERROR: please check the values"
                        
 
@@ -356,7 +337,6 @@ createInvoiceLatex listConsumption = do putStr "Id of client (ex. 1000): "
                                         month <- getLine
                                         putStr "Year (ex. 2018): "
                                         year <- getLine 
-                                        {-let notExists = ifNotExistsInvoice (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listInvoice-}
                                         createInvoice (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption
 
 -- Calculate the average consumption for one client in one year
