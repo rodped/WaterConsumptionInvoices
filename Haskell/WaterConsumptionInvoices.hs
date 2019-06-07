@@ -1,3 +1,4 @@
+-- Import modules for calculate current date
 import Data.Time.Clock
 import Data.Time.Calendar
 
@@ -115,7 +116,24 @@ validateInvoice (a, b, c, d)
     | (c<=0 || c>12) = False
     | (d<=0) = False 
     | otherwise = True
+   
+------------------------------------------------------------------------------
+--                               Não funciona                               --
+------------------------------------------------------------------------------
 
+-- Check if a register not exists in list of consumptions
+ifNotExistsConsumption :: (Idclient, Month, Year) -> ListConsumption -> Bool
+ifNotExistsConsumption (a0, g0, h0) [] = True
+ifNotExistsConsumption (a0, g0, h0) ((a, b, c, d, e, f, g, h): xs) =
+    if(a0==a && g0==g && h0==h) then False
+    else ifNotExistsConsumption (a0, g0, h0) xs
+-- Check if a register not exists in list of invoices
+ifNotExistsInvoice :: (Idclient, Month, Year) -> ListInvoice -> Bool
+ifNotExistsInvoice (a0, g0, h0) [] = True
+ifNotExistsInvoice (a0, c0, d0) ((a, b, c, d): xs) = 
+    if(a0==a && c0==c && d0==d) then False
+    else ifNotExistsInvoice (a0, c0, d0) xs
+------------------------------------------------------------------------------
 
 -- Find a water consumption and create the invoice
 createInvoice :: (Idclient, Month, Year) -> ListConsumption -> IO()
@@ -128,7 +146,7 @@ createInvoice (idclient, month, year) ((a, b, c, d, e, f, g, h): xs)
                                                       if(validateInvoice (idclient, water_bill, g, h)) then do
                                                         insertInvoice idclient water_bill g h
                                                         latexFile a b c d sft e c0_5t f c6_15t water_bill g h
-                                                      else error "ERROR: wrong values"
+                                                      else error "ERROR: please check the values"
     | otherwise = createInvoice (idclient, month, year) xs
 
 -- Insert invoice in listInvoice
@@ -303,49 +321,49 @@ printListInvoiceYear (idclient, year) ((a, b, c, d): xs)
 
 -- Insert the consumption of one client in one month in listConsumption
 insertConsumption :: IO()
-insertConsumption = do putStr "\nClient Id: " 
+insertConsumption = do putStr "\nClient Id (ex. 1000): " 
                        idclient <- getLine
-                       putStr "Name: " 
+                       putStr "Name (ex. John): " 
                        name <- getLine
-                       putStr "Address: " 
+                       putStr "Address (ex. Lisbon): " 
                        address <- getLine
-                       putStr "Number of Persons: " 
+                       putStr "Number of Persons (ex. 1): " 
                        npersons <- getLine
-                       putStr "CubicMeters (0 to 5): " 
+                       putStr "CubicMeters [0,5] (ex. 3.5): " 
                        cubicmeters0_5 <- getLine
-                       putStr "CubicMeters (6 to 15): " 
+                       putStr "CubicMeters [6,15] (ex. 2.4): " 
                        cubicmeters6_15 <- getLine
-                       putStr "Month: " 
+                       putStr "Month (ex. 3): " 
                        month <- getLine
-                       putStr "Year: " 
+                       putStr "Year (ex. 2018): " 
                        year <- getLine
-                       if(validateConsumption (read(idclient)::Idclient, read(name)::Name, 
-                        read(address)::Address, read(npersons)::Npersons, 
-                        read(cubicmeters0_5)::Cubicmeters0_5, read(cubicmeters6_15)::Cubicmeters6_15, 
-                        read(month)::Month, read(year)::Year)) then do appendFile "WaterConsumption.txt" (idclient ++ "\t" ++ name ++ "\t" ++ address ++ "\t" ++ npersons ++ "\t" ++ cubicmeters0_5 ++ "\t" ++ cubicmeters6_15 ++ "\t" ++ month ++ "\t" ++ year ++ "\n")
-                                                                       putStr "Insert another one? (y/Y): " 
-                                                                       op <- getLine
-                                                                       if (op=="y" || op=="Y") then insertConsumption 
-                                                                       else return()
+                       {-let notExists = ifNotExistsConsumption (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption-}
+                       let checkValues = validateConsumption (read(idclient)::Idclient, read(name)::Name, read(address)::Address, read(npersons)::Npersons, read(cubicmeters0_5)::Cubicmeters0_5, read(cubicmeters6_15)::Cubicmeters6_15, read(month)::Month, read(year)::Year)
+                       if({-notExists &&-} checkValues) then do appendFile "WaterConsumption.txt" (idclient ++ "\t" ++ name ++ "\t" ++ address ++ "\t" ++ npersons ++ "\t" ++ cubicmeters0_5 ++ "\t" ++ cubicmeters6_15 ++ "\t" ++ month ++ "\t" ++ year ++ "\n")
+                                                                putStr "Insert another one? (y/Y): " 
+                                                                op <- getLine
+                                                                if (op=="y" || op=="Y") then insertConsumption 
+                                                                else return()
                        else error "ERROR: please check the values"
                        
 
 
 -- Create the invoice of a client in latex and insert in listInvoice
 createInvoiceLatex :: ListConsumption -> IO()
-createInvoiceLatex listConsumption = do putStr "Id of client: "
+createInvoiceLatex listConsumption = do putStr "Id of client (ex. 1000): "
                                         idclient <- getLine
-                                        putStr "Month: "
+                                        putStr "Month (ex. 3): "
                                         month <- getLine
-                                        putStr "Year: "
-                                        year <- getLine                                         
+                                        putStr "Year (ex. 2018): "
+                                        year <- getLine 
+                                        {-let notExists = ifNotExistsInvoice (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listInvoice-}
                                         createInvoice (read(idclient)::Idclient, read(month)::Month, read(year)::Year) listConsumption
 
 -- Calculate the average consumption for one client in one year
 calculateAverage :: ListConsumption -> IO()
-calculateAverage listConsumption = do putStr "Id of client: "
+calculateAverage listConsumption = do putStr "Id of client (ex. 1000): "
                                       idclient <- getLine
-                                      putStr "Year: "
+                                      putStr "Year (ex. 2018): "
                                       year <- getLine 
                                       if ((read(idclient)::Idclient)>0 || (read(year)::Year)>0) then do let listConsumptionSorted = sortConsumptions listConsumption
                                                                                                         let name = findName (read(idclient)::Idclient) listConsumption
@@ -358,9 +376,9 @@ calculateAverage listConsumption = do putStr "Id of client: "
                                       else error "ERROR: please check the values"
 
 -- Calculate a water bill for one client in a year
-calculateTotal listConsumption listInvoice = do putStr "Id of client: "
+calculateTotal listConsumption listInvoice = do putStr "Id of client (ex. 1000): "
                                                 idclient <- getLine
-                                                putStr "Year: "
+                                                putStr "Year (ex. 2018): "
                                                 year <- getLine
                                                 if ((read(idclient)::Idclient)>0 || (read(year)::Year)>0) then do let listInvoiceSorted = sortInvoices listInvoice
                                                                                                                   let name = findName (read(idclient)::Idclient) listConsumption
@@ -385,9 +403,9 @@ over5cubicmeters listConsumption = do now <- getCurrentTime
                                       putStr (show (totalOver5CubicmetersYear (read(show(lastYear))::Year) listConsumption) ++ "m³")
 
 -- Generate a graph connecting the monthly payment of a client during one year
-graphPayment listConsumption listInvoice = do putStr "Id of client: "
+graphPayment listConsumption listInvoice = do putStr "Id of client (ex. 1000): "
                                               idclient <- getLine
-                                              putStr "Year: "
+                                              putStr "Year (ex. 2018): "
                                               year <- getLine
                                               if ((read(idclient)::Idclient)>0 || (read(year)::Year)>0) then do let listInvoiceSorted = sortInvoices listInvoice
                                                                                                                 let name = findName (read(idclient)::Idclient) listConsumption

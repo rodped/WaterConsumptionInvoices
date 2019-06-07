@@ -34,3 +34,7 @@
 1200	Steve	Lisbon	1	4.7	0	10	2019
 1200	Steve	Lisbon	1	1.8	0	11	2019
 1200	Steve	Lisbon	2	5	4.5	12	2019
+1300	Joe	Madrid	2	4.3	0	1	2019
+1300	Joe	Madrid	2	5	1.2	2	2019
+1300	Joe	Madrid	1	2	0	3	2019
+1300	Joe	Madrid	1	4	0	4	2019
